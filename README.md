@@ -9,7 +9,8 @@ miepython, version 1.3.0
 
 To execute the script you must to open with window command (window prompt), 
 
-![Screenshot](commandWindow.jpg)
+![commandWindow](https://user-images.githubusercontent.com/35369817/67784656-64703d00-fa6c-11e9-94fa-0e616d703168.JPG)
+
 and in the folder where is the py write:
 
 python RaProM_v0.py
