@@ -1,14 +1,16 @@
 # ImproveProcessRawMrr
-Scripts to process data from raw Mrr to netcdf
+Script to process data from raw Mrr to netcdf
 
-The main script is RaProM_v0.py and it is necessary the next libarries:
+The main script is RaProM_v0.py and it is necessary the next libraries:
 
 numpy , version 1.14.5
 
 miepython, version 1.3.0
 
-To execute the script you must to open with prompt, and in the folder where is the py write:
+To execute the script you must to open with window command (window prompt), and in the folder where is the py write:
+
 python RaProM_v0.py
+
 
 The script ask you where is the raw data to process, you must write the correct root: c:\mrrdata\tes\
 
