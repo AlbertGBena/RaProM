@@ -7,7 +7,10 @@ numpy , version 1.14.5
 
 miepython, version 1.3.0
 
-To execute the script you must to open with window command (window prompt), and in the folder where is the py write:
+To execute the script you must to open with window command (window prompt), 
+
+![Alt text](d:\MrrRepo\commandWindow.jpg?raw=true "Command Prompt")
+and in the folder where is the py write:
 
 python RaProM_v0.py
 
