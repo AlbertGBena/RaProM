@@ -4,6 +4,7 @@ Scripts to process data from raw Mrr to netcdf
 The main script is RaProM_v0.py and it is necessary the next libarries:
 
 numpy , version 1.14.5
+
 miepython, version 1.3.0
 
 To execute the script you must to open with prompt, and in the folder where is the py write:
