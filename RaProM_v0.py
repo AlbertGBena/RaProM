@@ -786,7 +786,11 @@ def Process(matrix,he,temps,D):#es el nucli de processat de la senyal
                     if w>=11:#case hail
                         diamHail=6
                 else:
-                    diamHail=diaWork[indexFinded[0]]
+                    if len(indexFinded)==0:
+                        diamHail=3#case liquid
+                    else:
+                        
+                        diamHail=diaWork[indexFinded[0]]
                 #print('diametre',diamHail)
                     
                 
