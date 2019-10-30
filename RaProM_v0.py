@@ -975,7 +975,7 @@ def Process(matrix,he,temps,D):#es el nucli de processat de la senyal
             else:
                 Munk.append(NewM[m]*np.nan)
                             
-         for m in range(len(state)):
+        for m in range(len(state)):
             if m!=0 and m!=len(state)-1:
                 s1=state[m-1]
                 s2=state[m]
