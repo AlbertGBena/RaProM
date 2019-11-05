@@ -1677,7 +1677,7 @@ for name in dircf:
                 
 
                 nc_Z_da=dataset.createVariable('Z','f',ncShape2D)
-                nc_Z_da.description='Reflectivity considering liquid drops, snow and hail'
+                nc_Z_da.description='Reflectivity considering only liquid drops'
                 nc_Z_da.units='dBZ'
 
                 nc_Z_e=dataset.createVariable('Ze','f',ncShape2D)
