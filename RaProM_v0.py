@@ -869,11 +869,12 @@ def Process(matrix,he,temps,D):#es el nucli de processat de la senyal
 
 ##                Value=(w/.817)**(1/.063)
                 if ValueZe<=0 or np.isnan(ValueZe):
-                    Z_da.append(np.nan)
+                    ##Z_da.append(np.nan)
                     SnowRate.append(np.nan)
                 else:
-                    Z_da.append(10*np.log10(ValueZe))
+                    ##Z_da.append(10*np.log10(ValueZe))
                     SnowRate.append(np.power(ValueZe/56.,1/1.2))#following Matrosov (2007) constants - https://link.springer.com/article/10.1007/s00703-011-0142-z#CR15
+                Z_da.append(np.nan)
                 lwc.append(np.nan)
                 rr.append(np.nan)
                 N_da.append(np.nan)
@@ -893,10 +894,11 @@ def Process(matrix,he,temps,D):#es el nucli de processat de la senyal
             if state[m]==0:#cas que no es liquid ni neu (aiguaneu)
                 Mmixed.append(NewM[m])
                 Value=10**18*lamb**4*np.nansum(NewM[m])/(np.pi**5*K2w)
-                if Value<=0 or np.isnan(Value):
-                    Z_da.append(np.nan)
-                else:
-                    Z_da.append(10*np.log10(Value))#use the rayleight estimation
+                ##if Value<=0 or np.isnan(Value):
+                    ##Z_da.append(np.nan)
+                ##else:
+                    ##Z_da.append(10*np.log10(Value))#use the rayleight estimation
+                Z_da.append(np.nan)
                 lwc.append(np.nan)
                 rr.append(np.nan)
                 N_da.append(np.nan)
@@ -958,11 +960,11 @@ def Process(matrix,he,temps,D):#es el nucli de processat de la senyal
                 ##pendent trobar relacio hail vers Z
                 
                 Value=10**18*lamb**4*np.nansum(NewM[m])/(np.pi**5*K2w)#use the rayleight estimation
-                if Value<=0 or np.isnan(Value):
-                    Z_da.append(np.nan)
-                else:
-                    Z_da.append(10*np.log10(Value))
-                
+                ##if Value<=0 or np.isnan(Value):
+                  ##  Z_da.append(np.nan)
+                ##else:
+                ##    Z_da.append(10*np.log10(Value))
+                Z_da.append(np.nan)
                 lwc.append(np.nan)
                 rr.append(np.nan)
                 N_da.append(np.nan)
