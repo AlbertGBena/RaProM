@@ -13,10 +13,12 @@ To execute the script you must to open with window command (window prompt),
 
 and in the folder where is the py write:
 
-python RaProM_v0.py
+python RaProM.py
 
 
 The script ask you where is the raw data to process, you must write the correct root: c:\mrrdata\tes\
+
+The script ask you for the number for integration time (usually 60)
 
 The script indicates the number of raw files in the folder and start the process.
 
