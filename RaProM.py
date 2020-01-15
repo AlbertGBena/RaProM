@@ -4,20 +4,16 @@
 
 
 import numpy as np
-import matplotlib.dates as mdates
 import calendar
 import datetime
 import time
 import miepython as mp
 from math import e
 from netCDF4 import Dataset
-import matplotlib.cm as cm
 import glob
 import os
 import sys
 import shutil
-
-
 
 
 def CorrectorFile(fid):
