@@ -7,6 +7,8 @@ numpy , version 1.14.5
 
 miepython, version 1.3.0
 
+netCDF4, version 1.2.7
+
 To execute the script you must to open with window command (window prompt), 
 
 ![commandWindow](https://user-images.githubusercontent.com/35369817/67784656-64703d00-fa6c-11e9-94fa-0e616d703168.JPG)
