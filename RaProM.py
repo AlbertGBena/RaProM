@@ -1296,7 +1296,7 @@ for name in dircf:
 
     dataset=Dataset(filenameplot+'.nc','w',format='NETCDF4')
     dataset.description='Data processed by MRR radar'
-    dataset.author='Albert Garcia Benadi'
+    dataset.author='Albert Garcia Benad'+u'\xed'
     dataset.orcid='0000-0002-5560-4392 '
 
     dataset.createDimension('DropSize',len(D[0]))
