@@ -880,7 +880,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                     nw.append(np.nan)
                 else:
                     dm.append(value4/value2)
-                    nw.append(np.log10(256.*(roW*value2*(np.pi/6.)*(10**-9))/ (np.pi*roW*(value4/value2)**4)))
+                    nw.append(np.log10(256.*(roW*value2*(np.pi/6.))/ (np.pi*roW*(value4/value2)**4)))#units m-3 mm-1
                 if mov[m]==-1:#case rain and upward
                       VerTur.append((2.6*np.power(ValueZe,.107))-w)
                 if mov[m]==1:#case rain and downward
