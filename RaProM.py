@@ -317,7 +317,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
     
     speeddeal=np.arange(-64*fNy,2*64*fNy,fNy)
     NewM=[];state=[];mov=[];VerTur=[]
-    W=[];Sig=[];Sk=[];lwc=[];rr=[];Z_da=[];SnowRate=[];N_da=[];Snr=[];Kurt=[]
+    W=[];Sig=[];Sk=[];lwc=[];rr=[];Z_da=[];SnowRate=[];N_da=[];Snr=[];Kurt=[];dm=[];nw=[]
     if np.sum(np.nanmean([vwaterR,vsnowR],axis=0))!=0:
         
         limitValueDeal=4#Limit value to activate the dealiasing
@@ -736,6 +736,8 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                 
                 Z_da.append(np.nan)
                 lwc.append(np.nan)
+                dm.append(np.nan)
+                nw.append(np.nan)
                 rr.append(np.nan)
                 N_da.append(np.nan)
                 PIA.append(np.nan)
@@ -837,6 +839,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                 value=np.nansum(np.prod([np.power(D[m],6),LastN,dif2],axis=0))
                 value2=np.nansum(np.prod([np.power(D[m],3),LastN,dif2],axis=0))
                 value3=np.nansum(np.prod([np.power(D[m],3),LastN,dif2,w],axis=0))
+                value4=np.nansum(np.prod([np.power(D[m],4),LastN,dif2],axis=0))
                 if np.nansum(nde)<=0.:
                     N_da.append(np.nan)
                 else:
@@ -872,6 +875,12 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                     rr.append(np.nan)
                 else:
                     rr.append(value3*(np.pi/6.)*(10**-9)*1000.*3600.)
+                if value4==0:
+                    dm.append(np.nan)
+                    nw.append(np.nan)
+                else:
+                    dm.append(value4/value2)
+                    nw.append(np.log10(256.*(roW*value2*(np.pi/6.)*(10**-9))/ (np.pi*roW*(value4/value2)**4)))
                 if mov[m]==-1:#case rain and upward
                       VerTur.append((2.6*np.power(ValueZe,.107))-w)
                 if mov[m]==1:#case rain and downward
@@ -896,6 +905,8 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                     SnowRate.append(np.power(ValueZe/56.,1/1.2))#following Matrosov (2007) constants - https://link.springer.com/article/10.1007/s00703-011-0142-z#CR15
                 Z_da.append(np.nan)
                 lwc.append(np.nan)
+                nw.append(np.nan)
+                dm.append(np.nan)
                 rr.append(np.nan)
                 N_da.append(np.nan)
                 PIA.append(np.nan)
@@ -923,6 +934,8 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                 Munk.append(NewM[m]*np.nan)
                 Z_da.append(np.nan)
                 lwc.append(np.nan)
+                nw.append(np.nan)
+                dm.append(np.nan)
                 rr.append(np.nan)
                 N_da.append(np.nan)
                 SnowRate.append(np.nan)
@@ -939,6 +952,8 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                 
                 Z_da.append(np.nan)
                 lwc.append(np.nan)
+                nw.append(np.nan)
+                dm.append(np.nan)
                 rr.append(np.nan)
                 N_da.append(np.nan)
                 PIA.append(np.nan)
@@ -974,6 +989,8 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
         NewM=(etaN*np.nan)
         Z_da=blanck
         lwc=blanck
+        nw=blanck
+        dm=blanck
         rr=blanck
         N_da=blanck
         W=blanck
@@ -989,7 +1006,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
         PIA=np.nan*np.ones(len(etaN)+1)
     if len(PIA)==31:
         PIA.append(np.nan)
-    return state,NewM,Z_da,lwc,rr,SnowRate,W,Sig,Sk,Noise,N_da,Nde,ZE,mov,VerTur,Snr,Kurt,PIA
+    return state,NewM,Z_da,lwc,rr,SnowRate,W,Sig,Sk,Noise,N_da,Nde,ZE,mov,VerTur,Snr,Kurt,PIA,nw,dm
 
        
     
@@ -1419,7 +1436,7 @@ for name in dircf:
 
                 proeta=Promig(PotCorrSum)
                 
-                estat,NewMatrix,z_da,lwc,rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA=Process(proeta,Hcolum[1:],timeVec,D)
+                estat,NewMatrix,z_da,lwc,rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA,NW,DM=Process(proeta,Hcolum[1:],timeVec,D)
 
                 nc_state[Timecount,:]=np.array(np.ma.masked_invalid(estat),dtype='f')
                 nc_w[Timecount,:]=np.array(np.ma.masked_invalid(w),dtype='f')
@@ -1432,6 +1449,9 @@ for name in dircf:
                 
                 nc_LWC[Timecount,:]=np.array(np.ma.masked_invalid(lwc),dtype='f')
                 nc_RR[Timecount,:]=np.array(np.ma.masked_invalid(rr),dtype='f')
+
+                nc_nw[Timecount,:]=np.array(np.ma.masked_invalid(NW),dtype='f')
+                nc_dm[Timecount,:]=np.array(np.ma.masked_invalid(DM),dtype='f')
                 
                 nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
                 nc_Z_e[Timecount,:]=np.array(np.ma.masked_invalid(Ze),dtype='f')
@@ -1583,6 +1603,14 @@ for name in dircf:
                 nc_RR.description='Rain Rate'
                 nc_RR.units='mm hr-1'
 
+                nc_nw=dataset.createVariable('Nw','f',ncShape2D)
+                nc_nw.description='Intercept parameter of the gamma distribution normalized to the liquid water content'
+                nc_nw.units='log10(mm-1 m-3)'
+
+                nc_dm=dataset.createVariable('Dm','f',ncShape2D)
+                nc_dm.description='mean mas-weighted raindrop diameter'
+                nc_dm.units='mm'
+
                 nc_SnowR=dataset.createVariable('SR','f',ncShape2D)
                 nc_SnowR.description='Snow Rate'
                 nc_SnowR.units='mm hr-1'
@@ -1624,7 +1652,7 @@ for name in dircf:
 
 
             PotCorrSum=[]#empty the array    
-            estat,NewMatrix,z_da,Lwc,Rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA=Process(proeta,Hcolum[1:],timeVec,D)
+            estat,NewMatrix,z_da,Lwc,Rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA,NW,DM=Process(proeta,Hcolum[1:],timeVec,D)
 
             nc_state[Timecount,:]=np.array(np.ma.masked_invalid(estat),dtype='f')
             nc_w[Timecount,:]=np.array(np.ma.masked_invalid(w),dtype='f')
@@ -1638,6 +1666,9 @@ for name in dircf:
             
             nc_LWC[Timecount,:]=np.array(np.ma.masked_invalid(Lwc),dtype='f')
             nc_RR[Timecount,:]=np.array(np.ma.masked_invalid(Rr),dtype='f')
+
+            nc_nw[Timecount,:]=np.array(np.ma.masked_invalid(NW),dtype='f')
+            nc_dm[Timecount,:]=np.array(np.ma.masked_invalid(DM),dtype='f')
             
             nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
             nc_Z_e[Timecount,:]=np.array(np.ma.masked_invalid(Ze),dtype='f')
