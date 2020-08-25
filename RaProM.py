@@ -818,15 +818,15 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
            
                 kp=np.nansum(Pro)*10**-6
         
-                num=2*kp*he[m]
-                N=-np.multiply(Np,np.log(1-num)/num)
+                num=2*kp*(he[3]-he[2])
+                N=-np.multiply(Np,np.log(1.-num)/num)
                 Pro2=[]
                 for k in range(len(N)):
                     pro2=SigmaExt[m][k]*N[k]*dif[k]
                     Pro2.append(pro2)
             
                 Kr=np.nansum(Pro2)*10**-6
-                pia=PIA[-1]*e**(2*Kr*he[m])
+                pia=PIA[-1]*e**(2*Kr*(he[3]-he[2]))
                 if pia>=10. or num==0.:
                     pia=10.
                     LastN=nde
