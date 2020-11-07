@@ -1,13 +1,13 @@
 # ImproveProcessRawMrr
 Script to process data from raw Mrr to netcdf
 
-The main script is RaProM.py works in python 2.7. and it is necessary the next libraries:
+The main script is RaProM.py avalaible in python 2.7. and 3.8. It is necessary the next libraries:
 
-numpy , version 1.14.5
+numpy , version up or equal 1.14.5
 
-miepython, version 1.3.0
+miepython, version up or equal 1.3.0
 
-netCDF4, version 1.2.7
+netCDF4, version up or equal 1.2.7
 
 To execute the script you must to open with window command (window prompt), 
 
