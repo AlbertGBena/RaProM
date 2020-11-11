@@ -1928,7 +1928,7 @@ for name in dircf:
                 nc_PIA.units='none'
 
                 nc_state=dataset.createVariable('Type','f',ncShape2D)
-                nc_state.description='Indicate the type from hydrometeor as unknown(20), rain (10), drizzle (5), mixed (0), snow(-10), graupel(-15) and hail (-20) '
+                nc_state.description='Indicate the type from hydrometeor as unknown(20), rain (10), drizzle (5), snow(-10), mixed (-15) and hail (-20) '
                 nc_state.units=''
                 
 
