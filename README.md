@@ -25,7 +25,7 @@ If you use this script for your publication, please cite as:
 
 ## Outputs
 The script produces the following outputs from MRR raw data:
-**W:** vertical speed with aliasing correction (m s-1)
+**W:** vertical speed with aliasing correction (m s-1)\n
 **spectral width:** spectral width with aliasing (m s-1)
 **skewness:** skewness of the spectral reflectivity with dealiasing
 **kurtosis:** kurtosis of the spectral reflectivity with dealiasing
