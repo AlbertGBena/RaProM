@@ -60,7 +60,7 @@ The script ask you where are the raw archieves to process (it will process all t
 ```
 c:\mrrdata\test\
 ```
-**NOTE: the path must end with \\ in Windows or a "/" in Linux**<br />
+**NOTE: the path must end with \\ in Windows or a / in Linux**<br />
 
 The script ask you for the number for integration time (usually 60)
 
