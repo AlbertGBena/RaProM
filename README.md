@@ -24,8 +24,7 @@ If you use this script for your publication, please cite as:
 
 
 ## Outputs
-The script produces the following outputs from MRR raw data:
-**W:** vertical speed with aliasing correction (m s-1)\n
+The script produces the following outputs from MRR raw data:	**W:** vertical speed with aliasing correction (m s-1)
 **spectral width:** spectral width with aliasing (m s-1)
 **skewness:** skewness of the spectral reflectivity with dealiasing
 **kurtosis:** kurtosis of the spectral reflectivity with dealiasing
@@ -60,7 +59,7 @@ The script ask you where are the raw archieves to process (it will process all t
 ```
 c:\mrrdata\test\
 ```
-NOTE: the path must end with a "\" in Windows or a "/" in Linux
+**NOTE: the path must end with a "\" in Windows or a "/" in Linux**
 
 The script ask you for the number for integration time (usually 60)
 
