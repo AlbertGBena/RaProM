@@ -8,11 +8,11 @@ More information at: [aquí va la ruta a l'article]
 
 The main script is RaProM.py avalaible in python 2.7. and 3.8. It is necessary the next libraries:
 
-	*numpy , version up or equal 1.14.5
+	numpy , version up or equal 1.14.5
 
-	*miepython, version up or equal 1.3.0
+	miepython, version up or equal 1.3.0
 
-	*netCDF4, version up or equal 1.2.7
+	netCDF4, version up or equal 1.2.7
 
 The script works with the MRR raw archives.
 
@@ -36,10 +36,9 @@ The script produces the following outputs from MRR raw data:<br />
 **SR:** Snow rate (mm hr<sup>-1</sup>)<br />
 **Z:** Reflectivity considering only liquid drops (dBZ)<br />
 **Ze:** Equivalent Reflectivity (dBZ)<br />
-**Vmov:** Verical movement (+1 downward -1 upward)<br />
 **N(D):** Drop Size Distribution (log10(m<sup>-3</sup> mm<sup>-1</sup>))<br />
 **SNR:** Signal noise relation from signal without deliasing (dB)<br />
-**Noise:** Noise (m<sup>-1</sup>)<br />
+**Noise:** Noise from spectra reflectivity (m<sup>-1</sup>)<br />
 **Nw:** Intercept of the gamma distribution normalized to the liquid water content (log10(m<sup>-3</sup> mm<sup>-1</sup>))<br />
 **Dm:** Mean mass-wighted raindrop diameter (mm)<br />
 **Fall speed variability:** Estimate of the fall speed variability (m s<sup>-1</sup>)<br />
