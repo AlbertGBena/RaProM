@@ -1647,7 +1647,7 @@ for name in dircf:
     nc_ranges_H_BB=dataset.createVariable('BB_Height','f',('BB_Height',))
     nc_ranges_DropSize=dataset.createVariable('DropSize','f',('DropSize',))
 
-    nc_times.units = 'UNIX Time Stamp, SECOND SINCE 1970-01-01'
+    nc_times.units = 'UNIX Time Stamp, SECONDS SINCE 1970-01-01'
     nc_times.description='Time in unix format'
 
     nc_ranges_H.units = 'm'
@@ -1906,21 +1906,21 @@ for name in dircf:
                 ##################create netcdf############
 
                 nc_w=dataset.createVariable('W','f',ncShape2D)
-                nc_w.description='vertical speed with aliasing correction'
+                nc_w.description='fall speed with aliasing correction'
                 nc_w.units='m/s'
                 
 
                 nc_sig=dataset.createVariable('spectral width','f',ncShape2D)
-                nc_sig.description='spectral width with dealiasing'
+                nc_sig.description='spectral width of the spectral reflectivity with dealiasing'
                 nc_sig.units='m/s'
                 
 
                 nc_sk=dataset.createVariable('Skewness','f',ncShape2D)
-                nc_sk.description='skewness with dealiasing'
+                nc_sk.description='skewness of the spectral reflectivity with dealiasing'
                 nc_sk.units='none'
 
                 nc_kur=dataset.createVariable('Kurtosis','f',ncShape2D)
-                nc_kur.description='Kurtosis with dealiasing'
+                nc_kur.description='Kurtosis of the spectral reflectivity with dealiasing'
                 nc_kur.units='none'
 
                 nc_PIA=dataset.createVariable('PIA','f',ncShape2D_PIA)
@@ -1928,7 +1928,7 @@ for name in dircf:
                 nc_PIA.units='none'
 
                 nc_state=dataset.createVariable('Type','f',ncShape2D)
-                nc_state.description='Indicate the type from hydrometeor as unknown(20), rain (10), drizzle (5), snow(-10), mixed (-15) and hail (-20) '
+                nc_state.description='Indicate the type from hydrometeor as unknown (20), rain (10), drizzle (5), snow (-10), mixed (-15) and hail (-20) '
                 nc_state.units=''
                 
 
@@ -1967,7 +1967,7 @@ for name in dircf:
                 nc_N_da.units='log10(m-3 mm-1)'
 
                 nc_N_daTH=dataset.createVariable('N(D) in function of time and height','f',ncShape3D)
-                nc_N_daTH.description='Drop Size Distributionin function of time and height'
+                nc_N_daTH.description='Drop Size Distribution in function of time and height'
                 nc_N_daTH.units='log10(m-3 mm-1)'
                 
                 nc_SNR=dataset.createVariable('SNR','f',ncShape2D)
@@ -1975,7 +1975,7 @@ for name in dircf:
                 nc_SNR.units='dB'
 
                 nc_Noi=dataset.createVariable('Noise','f',ncShape2D)
-                nc_Noi.description='Noise'
+                nc_Noi.description='Noise from spectral reflectivity'
                 nc_Noi.units='m-1'
 
                 nc_nw=dataset.createVariable('Nw','f',ncShape2D)
@@ -1983,7 +1983,7 @@ for name in dircf:
                 nc_nw.units='log10(mm-1 m-3)'
 
                 nc_dm=dataset.createVariable('Dm','f',ncShape2D)
-                nc_dm.description='mean mas-weighted raindrop diameter'
+                nc_dm.description='mean mass-weighted raindrop diameter'
                 nc_dm.units='mm'
 
 
@@ -1992,11 +1992,11 @@ for name in dircf:
                 nc_VelTur.units='m/s'
 
                 nc_bb_bot=dataset.createVariable('BB_bottom','f',ncShape2D_BB)
-                nc_bb_bot.description='height from BB bottom in meters a.g.l.'
+                nc_bb_bot.description='height from Bright Band bottom in meters a.g.l.'
                 nc_bb_bot.units='m'
 
                 nc_bb_top=dataset.createVariable('BB_top','f',ncShape2D_BB)
-                nc_bb_top.description='height from BB Top in meters a.g.l.'
+                nc_bb_top.description='height from Bright Band top in meters a.g.l.'
                 nc_bb_top.units='m'
 
 
