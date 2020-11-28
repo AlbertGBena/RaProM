@@ -1,6 +1,6 @@
 # ImproveProcessRawMrr - RaProM.py
 
-RaProM is a novel MRR processing methodology, with enhanced spectral processing and Doppler dealiasing, that produces as output data a number of fields which include equivalent reflectivity (Ze), Doppler fall speed and derived parameters such as spectral width, skewness, and kurtosis, plus a simplified precipitation type classification (drizzle, rain, snow, and hail), plus additional variables depending on the precipitation type. 
+RaProM is a novel MRR processing methodology, with enhanced spectra processing and Doppler dealiasing, that produces as output data a number of fields which include equivalent reflectivity (Ze), Doppler fall speed and derived parameters such as spectral width, skewness, and kurtosis, plus a simplified precipitation type classification (drizzle, rain, mixed, snow, and hail), plus additional variables depending on the precipitation type. 
 
 More information at: [aquí va la ruta a l'article]
 
@@ -24,33 +24,34 @@ If you use this script for your publication, please cite as:
 
 
 ## Outputs
-The script produces the following outputs from MRR raw data:"\n"
-**W:** vertical speed with aliasing correction (m s-1)"\n"
-**spectral width:** spectral width with aliasing (m s-1)
-**skewness:** skewness of the spectral reflectivity with dealiasing
-**kurtosis:** kurtosis of the spectral reflectivity with dealiasing
-**PIA:** Path Integrated Attenuation
-**Type:** Type from hydrometeor (unknown[20], rain [10], drizzle ]5], snow [-10], mixed [-15] and hail [-20])
-**LWC:** Liquid water content (g m-3)
-**RR:** Rain rate (mm hr-1)
-**SR:** Snow rate (mm hr-1)
-**Z:** Reflectivity considering only liquid drops (dBZ)
-**Ze:** Equivalent Reflectivity (dBZ)
-**Vmov:** Verical movement (+1 downward -1 upward)
-**N(D):** Drop Size Distribution (log10(m-3 mm-1))
-**SNR:** Signal noise relation from signal without deliasing (dB)
-**Noise:** Noise (m-1)
-**Nw:** Intercept of the gamma distribution normalized to the liquid water content (log10(mm-1 m-3))
-**Dm:** Mean mass-wighted raindrop diameter (mm)
-**Fall speed variability:** Estimate of the fall speed variability (m s-1)
-**BB_bottom:** height from the Bright Band bottom (m)
-**BB_top:** height from the Bright Band top (m)
+The script produces the following outputs from MRR raw data:<br />
+**W:** vertical speed with aliasing correction (m s<sup>-1</sup>)<br />
+**spectral width:** spectral width with aliasing (m s<sup>-1</sup>)<br />
+**skewness:** skewness of the spectral reflectivity with dealiasing<br />
+**kurtosis:** kurtosis of the spectral reflectivity with dealiasing<br />
+**PIA:** Path Integrated Attenuation<br />
+**Type:** Type from hydrometeor (unknown[20], rain [10], drizzle [5], snow [-10], mixed [-15] and hail [-20])<br />
+**LWC:** Liquid water content (g m<sup>-3</sup>)<br />
+**RR:** Rain rate (mm hr<sup>-1</sup>)<br />
+**SR:** Snow rate (mm hr<sup>-1</sup>)<br />
+**Z:** Reflectivity considering only liquid drops (dBZ)<br />
+**Ze:** Equivalent Reflectivity (dBZ)<br />
+**Vmov:** Verical movement (+1 downward -1 upward)<br />
+**N(D):** Drop Size Distribution (log10(m<sup>-3</sup> mm<sup>-1</sup>))<br />
+**SNR:** Signal noise relation from signal without deliasing (dB)<br />
+**Noise:** Noise (m<sup>-1</sup>)<br />
+**Nw:** Intercept of the gamma distribution normalized to the liquid water content (log10(m<sup>-3</sup> mm<sup>-1</sup>))<br />
+**Dm:** Mean mass-wighted raindrop diameter (mm)<br />
+**Fall speed variability:** Estimate of the fall speed variability (m s<sup>-1</sup>)<br />
+**BB_bottom:** height from the Bright Band bottom (m)<br />
+**BB_top:** height from the Bright Band top (m)<br />
 
 
 ## How to execute the script
-To execute the script you must to open with window command (window prompt),
+To execute the script you must to open with window command (window prompt),<br />
+<br />
 ![commandWindow](https://user-images.githubusercontent.com/35369817/67784656-64703d00-fa6c-11e9-94fa-0e616d703168.JPG)
-
+<br />
 and in the folder where is the RaProM.py write:
 ```
 python RaProM.py
@@ -60,7 +61,7 @@ The script ask you where are the raw archieves to process (it will process all t
 ```
 c:\mrrdata\test\
 ```
-**NOTE: the path must end with a "\" in Windows or a "/" in Linux**
+**NOTE: the path must end with a "\" in Windows or a "/" in Linux**<br />
 
 The script ask you for the number for integration time (usually 60)
 
