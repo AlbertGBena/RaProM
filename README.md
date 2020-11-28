@@ -25,10 +25,10 @@ If you use this script for your publication, please cite as:
 
 ## Outputs
 The script produces the following outputs from MRR raw data:<br />
-**W:** vertical speed with aliasing correction (m s<sup>-1</sup>)<br />
-**spectral width:** spectral width with aliasing (m s<sup>-1</sup>)<br />
-**skewness:** skewness of the spectral reflectivity with dealiasing<br />
-**kurtosis:** kurtosis of the spectral reflectivity with dealiasing<br />
+**W:** fall speed with aliasing correction (m s<sup>-1</sup>)<br />
+**spectral width:** spectral width of the fall speed with dealiasing (m s<sup>-1</sup>)<br />
+**skewness:** skewness of the fall speed with dealiasing<br />
+**kurtosis:** kurtosis of the fall speed with dealiasing<br />
 **PIA:** Path Integrated Attenuation<br />
 **Type:** Type from hydrometeor (unknown[20], rain [10], drizzle [5], snow [-10], mixed [-15] and hail [-20])<br />
 **LWC:** Liquid water content (g m<sup>-3</sup>)<br />
@@ -60,7 +60,7 @@ The script ask you where are the raw archieves to process (it will process all t
 ```
 c:\mrrdata\test\
 ```
-**NOTE: the path must end with a "\" in Windows or a "/" in Linux**<br />
+**NOTE: the path must end with \\ in Windows or a "/" in Linux**<br />
 
 The script ask you for the number for integration time (usually 60)
 
@@ -70,4 +70,4 @@ The result is a netcdf file with the same name but finished "-processed"
 
 
 ## Contact
-If you have any question, please contact with Albert Benadí at albert.garcia@meteo.ub.edu  or   albert.garcia-benadi@upc.edu
+If you have any question, please contact with Albert at albert.garcia@meteo.ub.edu  or   albert.garcia-benadi@upc.edu
