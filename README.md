@@ -26,9 +26,9 @@ If you use this script for your publication, please cite as:
 ## Outputs
 The script produces the following outputs from MRR raw data:<br />
 **W:** fall speed with aliasing correction (m s<sup>-1</sup>)<br />
-**spectral width:** spectral width of the fall speed with dealiasing (m s<sup>-1</sup>)<br />
-**skewness:** skewness of the fall speed with dealiasing<br />
-**kurtosis:** kurtosis of the fall speed with dealiasing<br />
+**spectral width:** spectral width of the spectral reflectivity  with dealiasing (m s<sup>-1</sup>)<br />
+**skewness:** skewness of the spectral reflectivity with dealiasing<br />
+**kurtosis:** kurtosis of the spectral reflectivity with dealiasing<br />
 **PIA:** Path Integrated Attenuation<br />
 **Type:** Type from hydrometeor (unknown[20], rain [10], drizzle [5], snow [-10], mixed [-15] and hail [-20])<br />
 **LWC:** Liquid water content (g m<sup>-3</sup>)<br />
