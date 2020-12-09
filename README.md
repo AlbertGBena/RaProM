@@ -51,9 +51,9 @@ To execute the script you must to open with window command (window prompt),<br /
 <br />
 ![commandWindow](https://user-images.githubusercontent.com/35369817/67784656-64703d00-fa6c-11e9-94fa-0e616d703168.JPG)
 <br />
-and in the folder where is the RaProM.py write:
+and in the folder where is the RaProM_XX.py write, where XX is 27 or 38 in function of your python version:
 ```
-python RaProM.py
+python RaProM_XX.py
 ```
 
 The script ask you where are the raw archieves to process (it will process all the MRR archives of the folder selected). You must write the correct root, for example:
