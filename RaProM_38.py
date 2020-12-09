@@ -131,21 +131,20 @@ def CheckType(Type,BB_bot,BB_top,Deltah,NW,DM,LWC,RR,Sk,Ze,Kur,SNR,Sigma,w):
     
     diffZe=np.diff(Ze)
 
-##    Ze=np.asarray(Ze)
-##    Ze_1=np.power(10.,Ze/10.)
+
     
     for i in range(len(Type)):
 ##        vwaterR=2.65*np.power(Ze_1[i],.114)#values a,b from Atlas et al. 1973
 ##        vsnowR=.817*np.power(Ze_1[i],.063)#values a,b from Atlas et al. 1973
         hact=i*Deltah
-        if ~np.isnan(BB_top) and hact>BB_top:#the BB top exists ans the type is water, so its comnverts to mixed or graupel
+        if ~np.isnan(BB_top) and hact>BB_top:#the BB top exists ans the type is water, so its converts to mixed or graupel
             if Type[i]==10:
-                if Sk[i]>=-0.5 and w[i]>2.:#Sigma[i]>0.1 and Sigma[i]<0.5:
+                if Sk[i]>=-0.5 and w[i]>2.:
                     Type[i]=-15.
                 else:
                     Type[i]=-10.
                 NW[i]=np.nan;DM[i]=np.nan;LWC[i]=np.nan;RR[i]=np.nan
-        if ~np.isnan(BB_bot) and hact<BB_bot:#the BB bot exists ans the type is snow, so its comnverts to liquid or Drizzle or graupel
+        if ~np.isnan(BB_bot) and hact<BB_bot:#the BB bot exists ans the type is snow, so its converts to liquid or Drizzle or graupel
             if Type[i]==-10:
                 if i<np.size(diffZe[i]):
 
@@ -156,14 +155,13 @@ def CheckType(Type,BB_bot,BB_top,Deltah,NW,DM,LWC,RR,Sk,Ze,Kur,SNR,Sigma,w):
                         if abs(w[i])<= 2:#limit the fall from snow is possible found snow below BBbottom if it's lower height
                             Type[i]=-10.
                         else:
-                            if Sk[i]>=-0.5 and w[i]>2.:#Sigma[i]>0.1 and Sigma[i]<0.5:
+                            if Sk[i]>=-0.5 and w[i]>2.:
                                 Type[i]=-15.
                             else:
                                 Type[i]=10.
 
         if np.isnan(BB_bot):#condition that not exit bottom BB
-##            Dif_ra=vwaterR-w[i]
-##            Dif_sno=vsnowR-w[i]
+
             if Type[i]==0:
                 if abs(w[i])<= 2:#limit the fall from snow
                     Type[i]=-10.
@@ -172,8 +170,8 @@ def CheckType(Type,BB_bot,BB_top,Deltah,NW,DM,LWC,RR,Sk,Ze,Kur,SNR,Sigma,w):
                 if i<np.size(diffZe):    
                     if Sk[i]<=-0.5 and diffZe[i]>1.:
                         Type[i]=5.
-    ##                print('SNR AFTER BB',SNR[i], 'at',i,'Without BB bottom')
-                if Sk[i]>=-0.5 and w[i]>2.:#Sigma[i]>0.1 and Sigma[i]<0.5:
+    
+                if Sk[i]>=-0.5 and w[i]>2.:
                     Type[i]=-15.
                 if Sigma[i]>1:
                     Type[i]=0
@@ -194,7 +192,7 @@ def Vel_Diam(v,h):
     P0=1013.25#hPa
 
     coe1=-L*R/g
-##    print('coe1',coe1)
+
     P=P0*np.power(1+(h*L/T0),1/coe1)
 
     CorrP=np.power(1000./P,0.55)
@@ -209,9 +207,7 @@ def Vel_Diam(v,h):
 
 def BB(v,Z,h):#the input are fall speed, equivalent reflectivity and height
     Nonan=np.count_nonzero(~np.isnan(v))#condition for calculate the BB
-##    print('altures',h)
 
-    
     #find the BB bottom
     gv=np.diff(v)
     if np.isnan(gv).all() or Nonan<5:
@@ -227,7 +223,7 @@ def BB(v,Z,h):#the input are fall speed, equivalent reflectivity and height
             if gZ[j]>0 and gZ[j+1]<0:
                 Hpeak=h[j]
                 break
-        if Hbot<Hpeak and Hpeak<Htop:#condicio per dir que existeix BB
+        if Hbot<Hpeak and Hpeak<Htop:#condition of BB exists
 ####            start the method from https://doi.org/10.1007/s00376-017-7005-6
             hBBbottom=np.nan
             for i in range(len(gv)-1):
@@ -350,7 +346,7 @@ def CorrectorFile(fid):
     
     
 def Promig(vector):
-##    print('vector del promig',vector,len(vector))
+
     rep=len(vector)
     Out=[] 
     for i in range(31):
@@ -506,7 +502,7 @@ def group(a,indexcentral,Nnan,d):
 
 def Process(matrix,he,temps,D):#This is the core from the preocessing
     neta,etan,etaNdb=HildrenS(matrix)
-    Cfact=1#value from cover factor, is the number multiplicate to sigma, Initially I considered as 2.
+    Cfact=1#value from cover factor, is the number multiplicate to sigma.
     
     Etan=FindRealPeaks(etan)
     etaN=np.multiply(Etan,Cte)
@@ -991,7 +987,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
             Sig.append(sigma)
             Sk.append(sk)
             Kurt.append(Kur)
-##            print('stat',state[m],m,len(state),len(NewM))
+
             
             
             
@@ -1027,7 +1023,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                     value2=(10**6)*(value/s)#N in m-3 mm-1
                     nde.append(value2)#units mm-1 m-3
                 
-                #Calculate the diamater from the mean vel found
+                #Calculate the diameter from the mean vel found
                 diaWork=D[m]
                 if w<=0 or w>=11:
                     if w<=0:#cas snow
@@ -1101,13 +1097,10 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                 else:
                     Mhail.append(NewM[m]*np.nan)
                 
-##                if np.isnan(vector[64:64*2]).all():
-##                    ValueMaxDi=np.nan
-##                else:
-##                    ValueMaxDi=np.nanargmax(vector[64:64*2])
+
                 if ~np.isnan(sk) :
                     
-##                    DiameterDriz=diaWork[ValueMaxDi]#new condition 28-10-2020
+
                     if m<len(Zediff):
                         if sk<=-0.5 and Zediff[m]>=1.:#New criteria from empric values. Then an artcile very interesting https://doi.org/10.1175/JTECH-D-18-0158.1
 
@@ -1163,7 +1156,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                     SnowRate.append(np.nan)
                 else:
                     if ~np.isnan(sk):
-##                    print('SNR AFTER Atlas',Snr[m], 'at',m)
+
                         if sk>=-0.5 and w>2.:
                             state[m]=-15.
                     
@@ -1196,7 +1189,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                         if sk<=-0.5 and Zediff[m]>1.0:
                             state[m]=5.
                     
-    ##                    print('SNR AFTER Atlas',Snr[m], 'at',m)
+    
     ####################criteria from doi:10.5194/acp-16-2997-2016
                         if sk>=0. and w>2.:
                             state[m]=-15.
@@ -1326,19 +1319,19 @@ def group_consecutives(vals, step=1):
         expect = v + step
     return result
 
-def Parameters(n,d,v,da):#the diffrences between diameter aren't constant
+def Parameters(n,d,v,da):#the differences between diameter aren't constant
     Z=[];lwc=[];rr=[];ze=[]
     
     roW=10**6 #water density g/m3
-    for i in range(len(n)):#entrem en una altura
+    for i in range(len(n)):
         D=d[i]
         N=n[i]
         w=v[i]
         dif=[]
         
         
-        if da==1:#estem amb l'eix dealiased
-            for m in range(len(D)):#creo el vector de diferencies
+        if da==1:#the code is in dealiased axes
+            for m in range(len(D)):
                 if m==0 or m==len(D)-1:
                     if m==0:
                         dif.append(d[i][m+1]-d[i][m])
@@ -1352,7 +1345,7 @@ def Parameters(n,d,v,da):#the diffrences between diameter aren't constant
 
         else:
             
-            for m in range(len(D)):#creo el vector de diferencies
+            for m in range(len(D)):
 
                 if m==0 or m==len(D)-1:
                     if m==0:
@@ -1381,7 +1374,7 @@ def Parameters(n,d,v,da):#the diffrences between diameter aren't constant
         
     return Z,lwc,rr,ze
 
-def FindRealPeaks(matrix):#function to detect real peaks, wherein a peak has a minuim 3 consecutives values
+def FindRealPeaks(matrix):#function to detect real peaks, wherein a peak has a minimum 3 consecutives values
     Matrix=[]
     for i in range(len(matrix)):
         vector=matrix[i]
@@ -1515,12 +1508,12 @@ def Peak(vector):
 velc=299792458.#light speed 
 lamb=velc/(24.23*1e9)  #La frequency of radar is 24.23 GHz
 ag_lam=lamb
-fsampling=125000#Hz valor de la frecuecnia de muestreo
+fsampling=125000#Hz frequencu sampling
 fNy=fsampling*lamb/(2*2*32*64) 
 K2w=0.92
 K2i=0.18
 K2s=np.mean((K2w,K2i))
-Deltaf=fsampling/(2*32*64) #ronda els 30 Hz
+Deltaf=fsampling/(2*32*64) #around 30 Hz
 CetNtoetaV=2./(Deltaf*lamb)
 Deltav=Deltaf*lamb/2.
 Ocurrence=50.#value in % of ocurrence in the averaging matrix
@@ -1563,7 +1556,7 @@ for name in dircf:
             break
         NumberLines+=1
     NumberSpectre=NumberLines/67.#divide by 67 because is the number of lines from spectrum
-##    print('num lineas',NumberSpectre)
+
 
 
     
@@ -1580,26 +1573,26 @@ for name in dircf:
 
     f=open(NameFile,'r')
     a=f.readline()
-##    print('linea',a)
+
     Hini=f.readline()
     f.close()
     Hini=Hini.strip()
     HIcolum=Hini.split()
     HIcolum=map(int,HIcolum[1:len(HIcolum)])#Get the height values and change to integer
     HIcolum2=np.fromiter(HIcolum,dtype=np.int)
-##    print('altures',HIcolum2)
+
 
     ##Found the parameters dv in function of the height (mrr physics equation)
     dv=[]
     for i in range(len(HIcolum2)):
         if i>=1:
-##            print(HIcolum2[i])
+
             dv.append(1+3.68*10**-5*HIcolum2[i]+1.71*10**-9*HIcolum2[i]**2)
 
     speed=np.arange(0,64*fNy,fNy)
     speed21=np.arange(0,32*fNy,fNy)
     speed22=np.arange(-32*fNy,0,fNy)
-    speed2=np.concatenate((speed21,speed22),axis=0)#gis vector speed is to evaluate the upward
+    speed2=np.concatenate((speed21,speed22),axis=0)#this vector speed is to evaluate the upward
     
 
 
@@ -1622,8 +1615,7 @@ for name in dircf:
     dataset.description='Data processed by MRR radar'
     dataset.author='Albert Garcia Benad'+u'\xed'
     dataset.orcid='0000-0002-5560-4392 '
-####    print(D,np.shape(D),len(dv),len(speed),HIcolum2)
-##    print(D[0])
+
 
     dataset.createDimension('DropSize',len(D[0]))
 
@@ -1685,7 +1677,7 @@ for name in dircf:
     Waterm = ag_mre + 1.0j * ag_mim
 
 
-    #parametres que s'empran en el processat, que s'han de inicialitzar
+    #Initially parocesser parameters
     timeList=list()
 
     co=0
@@ -1754,8 +1746,7 @@ for name in dircf:
 
                 proeta=Promig(PotCorrSum)
                 
-##                estat,NewMatrix,z_da,lwc,rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA=Process(proeta,Harray[1:],timeVec,D)
-##                bb_bot,bb_top=BB(w,Ze,Harray[1:])
+
                 estat,NewMatrix,z_da,Lwc,Rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA,NW,DM=Process(proeta,Harray[1:],timeVec,D)
                 bb_bot,bb_top=BB(w,Ze,Harray[1:])
                 estat,NW,DM,Lwc,Rr=CheckType(estat,bb_bot,bb_top,DeltaH,NW,DM,Lwc,Rr,sk,Ze,kur,snr,sig,w)
@@ -1827,8 +1818,7 @@ for name in dircf:
         Hcolum=map(int,Hcolum[1:len(Hcolum)])#Get the height values and change to integer
         Harray=np.fromiter(Hcolum,dtype=np.int)
         DeltaH=Harray[5]-Harray[4]#Height difference
-##        print('delta',DeltaH)
-        #
+
         #Read the tranference function (third line from raw file)
         FT=f.readline()
         FT=FT.strip()
@@ -1855,7 +1845,7 @@ for name in dircf:
             Data=Data.split()
             Dades1=map(int,Data[1:len(Data)]) #extract the title for eac line F00, F01, etc
             Dades=np.fromiter(Dades1,dtype=np.int)
-##            print('dades',Dades)
+
             
             FQ.append(Data[0])
             DataT.append(Dades)
@@ -1864,14 +1854,14 @@ for name in dircf:
         
         
 
-        for k in range(len(Harray)):#the result is  amtrix crrected by transfer fuction and height, and dimension (LenHcolum)-1)
+        for k in range(len(Harray)):#the result is  amtrix crrected by transfer function and height, and dimension (LenHcolum)-1)
             COL=[row[k] for row in DataT]
 
             if k>=1:
                 quo=FTarray[k]/(k**2)
                 Pot.append(np.divide(COL,quo))#pot is the spectra potence (v,i) except by muliply a constant where eac array is a column, or gate height
 
-##        print('Pot',Pot)
+
         hcor=np.asarray(Harray[1:])
         
 
@@ -1884,7 +1874,7 @@ for name in dircf:
             if len(PotCorrSum)==0:
                 proeta=Pot*np.nan
             else:
-##                print('problem',PotCorrSum)
+
 
                 proeta=Promig(PotCorrSum)
 
@@ -1999,40 +1989,8 @@ for name in dircf:
             bb_bot,bb_top=BB(w,Ze,Harray[1:])
             estat,NW,DM,Lwc,Rr=CheckType(estat,bb_bot,bb_top,DeltaH,NW,DM,Lwc,Rr,sk,Ze,kur,snr,sig,w)
             z_da,Lwc,Rr,NW,DM,DSD,NdE=Rain_Par(estat,z_da,Lwc,Rr,NW,DM,NewMatrix,D,DSD,NdE,Harray[1:],w)
-##########            for q in range(len(estat)):
-##########                vec=NewMatrix[q]
-##########                if len(vec)==64:
-##########                    val_x=np.arange(0,len(vec)*fNy,fNy)
-##########                else:
-##########                    val_x=np.arange(-1*64.*fNy,2*64.*fNy,fNy)
-##########                if ~np.isnan(estat[q]) or ~np.isnan(w[q]) or ~np.isnan(Ze[q]):
-##########                    if w[q]>=0:
-##########                        dgun,dgrau,dhail=Vel_Diam(w[q],100+Harray[q])
-##########                        text='velocity '+str(round(w[q],2))+'\nsigma '+str(round(sig[q],2))+'\nskewness '+str(round(sk[q],2))+'\nkurtosis '+str(round(kur[q],2))+'\nDgun '+str(round(dgun,1))+'\nDgrau '+str(round(dgrau,1))+'\nDhail '+str(round(dhail,1))
-##########                    else:
-############                        dgun='--';dgrau='--';dhail='--';
-##########                        text='velocity '+str(round(w[q],2))+'\nsigma '+str(round(sig[q],2))+'\nskewness '+str(round(sk[q],2))+'\nkurtosis '+str(round(kur[q],2))+'\nDgun ---\nDgrau ---\nDhail ---'
-##########                    
-##########                    plt.plot(val_x,vec*np.power(10,9))
-##########                    plt.xlim(val_x[0],val_x[-1])
-############                    plt.yscale('log')
-##########                    plt.xlabel('velocity m/s')
-##########                    plt.ylabel('spectral reflectivity * 10^9')
-##########                    plt.title(str(estat[q])+' at '+str(100+Harray[q])+' where 0 celsius is at '+str(round(h_0[Timecount],1)))
-##########                    
-##########                    plt.text(w[q]+2,10**9*np.nanmin(vec)+10**9*(np.nanmax(vec)-np.nanmin(vec))/3.,text)
-##########                    plt.tight_layout()
-##########                    xti2=unix2date(timeVec)
-############                    print(xti2)
-############                    xfmt2 = mdates.DateFormatter('%H:%M') #format de l'eix x
-############                    Txfmt2=str(unix2date(timeMWR[0]))#format de la finestra
-##########                    
-##########                                         
-############                    plt.show()
-##########                    plt.savefig('c:/20170327/'+str(xti2.hour)+'-'+str(xti2.minute)+'-'+str(100*(q+1))+'.png',dpi=100)
-############                    plt.clear()
-##########                    plt.close('all')
-##########                
+
+                
 
             nc_state[Timecount,:]=np.array(np.ma.masked_invalid(estat),dtype='f')
             nc_w[Timecount,:]=np.array(np.ma.masked_invalid(w),dtype='f')
