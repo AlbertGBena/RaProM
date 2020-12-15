@@ -18,6 +18,68 @@ import netCDF4 as nc4
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+
+
+def PrepType(dm,nw):
+##    convert the matrix dm, nw in  linear vector
+    Nw=[];Dm=[]
+
+    for i in range(len(nw)):
+        vector=nw[i]
+        for j in range(len(vector)):
+            if ~np.isnan(nw[i][j]) and ~np.isnan(dm[i][j]): 
+                Nw.append(nw[i][j])
+                Dm.append(dm[i][j])
+    
+    Dm=np.asarray(Dm,dtype=float)
+    Nw=np.asarray(Nw,dtype=float)
+    Dm2=[];Nw2=[];Y2=[]
+    for i in range(len(Dm)):
+        if ~np.isnan(Dm[i])and ~np.isnan(Nw[i]):
+            y=6.3-1.6*Dm[i]
+            ThuInd=Nw[i]-y#thurai(2016) index
+            Dm2.append(round(Dm[i],1))
+            Nw2.append(round(Nw[i],1))
+            Y2.append(round(ThuInd,1))
+                       
+
+    Dm_axes=np.arange(np.min(Dm2),np.max(Dm2),.1)
+    Nw_axes=np.arange(np.min(Nw2),np.max(Nw2),.1)
+    dm_axes=[];nw_axes=[]
+    for i in range(len(Dm_axes)):
+        dm_axes.append(round(Dm_axes[i],1))
+    for i in range(len(Nw_axes)):
+        nw_axes.append(round(Nw_axes[i],1))
+
+    Matrix=np.ones((len(dm_axes),len(nw_axes)))*np.nan
+##    Create the matrix results Stra, Trans and Convective
+    for i in range(len(dm_axes)):
+        for j in range(len(Dm2)):
+
+            if dm_axes[i]==Dm2[j]:
+
+                for k in range(len(nw_axes)):
+
+                    if nw_axes[k]==Nw2[j]:
+
+                        Matrix[i][k]=Y2[j]
+
+##    Matrix is the matrix with the values de index Thurai(2016)
+##now give the values from precypitation type where convective is 1, transition is 0 and stratiform is -1
+    for i in range(len(Matrix)):
+        for j in range(len(Matrix[i])):
+            if ~np.isnan(Matrix[i][j]):
+                if abs(Matrix[i][j])<=0.3:
+                    Matrix[i][j]=0.#transtition
+                else:
+                    if Matrix[i][j]<-0.3:
+                        Matrix[i][j]=-5.#stratiform
+                    if Matrix[i][j]>0.3:
+                        Matrix[i][j]=5.#convective
+    
+
+    return dm_axes,nw_axes,Matrix
+
 def date2unix(date):
     return calendar.timegm(date.timetuple())
 def unix2date(unix):
@@ -1541,6 +1603,7 @@ print('The script generate netcdf file with the same name of raw files\n')
 for name in dircf:
     
     NameFile=name 
+    Nw_2=[];Dm_2=[]
 
     
     
@@ -1769,10 +1832,13 @@ for name in dircf:
 
                 nc_nw[Timecount,:]=np.array(np.ma.masked_invalid(NW),dtype='f')
                 nc_dm[Timecount,:]=np.array(np.ma.masked_invalid(DM),dtype='f')
+                if ~np.isnan(DM).all():
+                    Nw_2.append(NW)
+                    Dm_2.append(DM)
                 
                 nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
                 nc_Z_e[Timecount,:]=np.array(np.ma.masked_invalid(Ze),dtype='f')
-                nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
+                #nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
 
                 nc_N_daTH[Timecount,:,:]=np.array(np.ma.masked_invalid(np.log10(NdE)),dtype='f')
                 
@@ -1781,7 +1847,7 @@ for name in dircf:
                 nc_SNR[Timecount,:]=np.array(np.ma.masked_invalid(snr),dtype='f')
                 nc_N_da[Timecount,:]=np.array(np.ma.masked_invalid(DSD),dtype='f')
 
-                nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
+                #nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
                
             break
 
@@ -1942,9 +2008,9 @@ for name in dircf:
                 nc_Z_e.description='Equivalent Reflectivity'
                 nc_Z_e.units='dBZ'
 
-                nc_VerMov=dataset.createVariable('Vmov','f',ncShape2D)
-                nc_VerMov.description='Verical movement +1 downward -1 upward'
-                nc_VerMov.units='None'
+                #nc_VerMov=dataset.createVariable('Vmov','f',ncShape2D)
+                #nc_VerMov.description='Verical movement +1 downward -1 upward'
+                #nc_VerMov.units='None'
                 
                 nc_N_da=dataset.createVariable('N(D)','f',ncShape2D)
                 nc_N_da.description='Drop Size Distribution'
@@ -1971,9 +2037,9 @@ for name in dircf:
                 nc_dm.units='mm'
 
 
-                nc_VelTur=dataset.createVariable('Fall speed variability','f',ncShape2D)
-                nc_VelTur.description='Estimate the fall speed variability'
-                nc_VelTur.units='m/s'
+                #nc_VelTur=dataset.createVariable('Fall speed variability','f',ncShape2D)
+                #nc_VelTur.description='Estimate the fall speed variability'
+                #nc_VelTur.units='m/s'
 
                 nc_bb_bot=dataset.createVariable('BB_bottom','f',ncShape2D_BB)
                 nc_bb_bot.description='height from Bright Band bottom in meters a.g.l.'
@@ -2003,9 +2069,9 @@ for name in dircf:
 
             nc_nw[Timecount,:]=np.array(np.ma.masked_invalid(NW),dtype='f')
             nc_dm[Timecount,:]=np.array(np.ma.masked_invalid(DM),dtype='f')
-
-            
-
+            if ~np.isnan(DM).all():
+                    Nw_2.append(NW)
+                    Dm_2.append(DM)
 
             nc_bb_bot[Timecount,:]=np.array(np.ma.masked_invalid(bb_bot),dtype='f')
             nc_bb_top[Timecount,:]=np.array(np.ma.masked_invalid(bb_top),dtype='f')
@@ -2015,14 +2081,14 @@ for name in dircf:
             
             nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
             nc_Z_e[Timecount,:]=np.array(np.ma.masked_invalid(Ze),dtype='f')
-            nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
+            #nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
             
             nc_SnowR[Timecount,:]=np.array(np.ma.masked_invalid(SnowRate),dtype='f')
             nc_Noi[Timecount,:]=np.array(np.ma.masked_invalid(Noi),dtype='f')
             nc_SNR[Timecount,:]=np.array(np.ma.masked_invalid(snr),dtype='f')
             nc_N_da[Timecount,:]=np.array(np.ma.masked_invalid(DSD),dtype='f')
 
-            nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
+            #nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
 
             Timecount=Timecount+1
             
@@ -2031,6 +2097,29 @@ for name in dircf:
 
     f.close()
     print('\n')
+    dm_ax,nw_ax,PrepType=PrepType(Dm_2,Nw_2)
+    dataset.createDimension('Dm_ax',len(dm_ax))
+    dataset.createDimension('Nw_ax',len(nw_ax))
+
+    nc_ranges_Dm=dataset.createVariable('Dm_ax','f',('Dm_ax',))
+    nc_ranges_Nw=dataset.createVariable('Nw_ax','f',('Nw_ax',))
+    
+    nc_ranges_Dm.description = 'mean diameter axes to Rainfall type'
+    nc_ranges_Dm.units = '(mm)'
+    
+    nc_ranges_Nw.description = 'Intecept parameter axes to Rainfall type'
+    nc_ranges_Nw.units = 'log(m-3 mm-1)'
+
+    nc_ranges_Dm[:]=np.array(dm_ax,dtype='f4')
+    nc_ranges_Nw[:]=np.array(nw_ax,dtype='f4')
+
+
+
+    nc_TypePrecipitation=dataset.createVariable('TyPrecipi','f',('Dm_ax','Nw_ax',))
+    nc_TypePrecipitation.description='Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform'
+    nc_TypePrecipitation.units='none'
+
+    nc_TypePrecipitation[:,:]=np.array(np.ma.masked_invalid(PrepType),dtype='f')
     print(datetime.datetime.now())                    
 
 
