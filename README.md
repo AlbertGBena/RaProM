@@ -2,7 +2,7 @@
 
 RaProM is a novel MRR processing methodology, with enhanced spectra processing and Doppler dealiasing, that produces as output data a number of fields which include equivalent reflectivity (Ze), Doppler fall speed and derived parameters such as spectral width, skewness, and kurtosis, plus a simplified precipitation type classification (drizzle, rain, mixed, snow, and hail), plus additional variables depending on the precipitation type. 
 
-More information at: [aquí va la ruta a l'article]
+More information at: https://www.mdpi.com/2072-4292/12/24/4113
 
 ## Versions and dependences
 
@@ -20,8 +20,8 @@ The script works with the MRR raw archives.
 ## How to cite
 
 If you use this script for your publication, please cite as:
-[aquí va la cita oficial de l'article]
-
+MDPI and ACS Style
+Garcia-Benadi, A.; Bech, J.; Gonzalez, S.; Udina, M.; Codina, B.; Georgis, J.-F. Precipitation Type Classification of Micro Rain Radar Data Using an Improved Doppler Spectral Processing Methodology. Remote Sens. 2020, 12, 4113. 
 
 ## Outputs
 The script produces the following outputs from MRR raw data:<br />
