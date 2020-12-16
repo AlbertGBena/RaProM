@@ -18,6 +18,69 @@ import netCDF4 as nc4
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+
+def PrepType(dm,nw):
+##    convert the matrix dm, nw in  linear vector
+    Nw=[];Dm=[]
+
+    for i in range(len(nw)):
+        vector=nw[i]
+        for j in range(len(vector)):
+            if ~np.isnan(nw[i][j]) and ~np.isnan(dm[i][j]): 
+                Nw.append(nw[i][j])
+                Dm.append(dm[i][j])
+    
+    Dm=np.asarray(Dm,dtype=float)
+    Nw=np.asarray(Nw,dtype=float)
+    Dm2=[];Nw2=[];Y2=[]
+    for i in range(len(Dm)):
+        if ~np.isnan(Dm[i])and ~np.isnan(Nw[i]):
+            y=6.3-1.6*Dm[i]
+            ThuInd=Nw[i]-y#thurai(2016) index
+            Dm2.append(round(Dm[i],1))
+            Nw2.append(round(Nw[i],1))
+            Y2.append(round(ThuInd,1))
+                       
+
+    Dm_axes=np.arange(np.min(Dm2),np.max(Dm2),.1)
+    Nw_axes=np.arange(np.min(Nw2),np.max(Nw2),.1)
+    dm_axes=[];nw_axes=[]
+    for i in range(len(Dm_axes)):
+        dm_axes.append(round(Dm_axes[i],1))
+    for i in range(len(Nw_axes)):
+        nw_axes.append(round(Nw_axes[i],1))
+
+    Matrix=np.ones((len(dm_axes),len(nw_axes)))*np.nan
+##    Create the matrix results Stra, Trans and Convective
+    for i in range(len(dm_axes)):
+        for j in range(len(Dm2)):
+
+            if dm_axes[i]==Dm2[j]:
+
+                for k in range(len(nw_axes)):
+
+                    if nw_axes[k]==Nw2[j]:
+
+                        Matrix[i][k]=Y2[j]
+
+##    Matrix is the matrix with the values de index Thurai(2016)
+##now give the values from precypitation type where convective is 1, transition is 0 and stratiform is -1
+    for i in range(len(Matrix)):
+        for j in range(len(Matrix[i])):
+            if ~np.isnan(Matrix[i][j]):
+                if abs(Matrix[i][j])<=0.3:
+                    Matrix[i][j]=0.#transtition
+                else:
+                    if Matrix[i][j]<-0.3:
+                        Matrix[i][j]=-5.#stratiform
+                    if Matrix[i][j]>0.3:
+                        Matrix[i][j]=5.#convective
+    
+
+    return dm_axes,nw_axes,Matrix
+                
+
+
 def date2unix(date):
     return calendar.timegm(date.timetuple())
 def unix2date(unix):
@@ -31,10 +94,7 @@ def Rain_Par(state,Z,LWC,RR,Nw,Dm,NewM,D,N_da,NdE,he,w):
     PIA=[];Nde=[];he=np.asarray(he)
     roW=10**6 #water density g/m3
     for m in range(np.size(state)):
-        
-	if state[m]==10 or state[m]==5:#rain case
-                
-            
+        if state[m]==10 or state[m]==5:#rain case
             dif=[]#diference between diameters for N
             dif2=[]#diference between diameters for Z
             nde=[]
@@ -60,9 +120,6 @@ def Rain_Par(state,Z,LWC,RR,Nw,Dm,NewM,D,N_da,NdE,he,w):
                 value2=(10**6)*(value/s)#N in m-3 mm-1
                 nde.append(value2)#units mm-1 m-3
 
-                
-                    
-            
                 ##                APPLY THE ATTENUATTION
             if m==0:
                 PIA.append(1)
@@ -132,7 +189,7 @@ def Rain_Par(state,Z,LWC,RR,Nw,Dm,NewM,D,N_da,NdE,he,w):
 
 
 
-	return Z,LWC,RR,Nw,Dm,N_da,NdE
+        return Z,LWC,RR,Nw,Dm,N_da,NdE
 def CheckType(Type,BB_bot,BB_top,Deltah,NW,DM,LWC,RR,Sk,Ze,Kur,SNR,Sigma,w):
     
     diffZe=np.diff(Ze)
@@ -176,7 +233,7 @@ def CheckType(Type,BB_bot,BB_top,Deltah,NW,DM,LWC,RR,Sk,Ze,Kur,SNR,Sigma,w):
                 if i<np.size(diffZe):    
                     if Sk[i]<=-0.5 and diffZe[i]>1.:
                         Type[i]=5.
-   
+    
                 if Sk[i]>=-0.5 and w[i]>2.:
                     Type[i]=-15.
                 if Sigma[i]>1:
@@ -198,7 +255,7 @@ def Vel_Diam(v,h):
     P0=1013.25#hPa
 
     coe1=-L*R/g
-##    print('coe1',coe1)
+
     P=P0*np.power(1+(h*L/T0),1/coe1)
 
     CorrP=np.power(1000./P,0.55)
@@ -238,7 +295,7 @@ def BB(v,Z,h):#the input are fall speed, equivalent reflectivity and height
                     indbot=i+1
                     break
                 
-            
+            #find the BB top
 
             
             if np.isnan(hBBbottom):
@@ -352,7 +409,7 @@ def CorrectorFile(fid):
     
     
 def Promig(vector):
-##    print('vector del promig',vector,len(vector))
+
     rep=len(vector)
     Out=[] 
     for i in range(31):
@@ -513,7 +570,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
     Etan=FindRealPeaks(etan)
     etaN=np.multiply(Etan,Cte)
     etaV=etaN/Deltav#convert eta(n) in eta(v)
-    state=[]#get the values from the classification type hydrometeor
+    state=[]#get the values 10 to water,-10 to snow and 0 if it is impossible to
     
     zewater=[];Ni=[];VT=[];Z=[];Z_da=[];Vhail=[]
     Noise=np.multiply(neta,Cte)
@@ -1029,7 +1086,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                     value2=(10**6)*(value/s)#N in m-3 mm-1
                     nde.append(value2)#units mm-1 m-3
                 
-                #Calculate the diamater from the mean vel found
+                #Calculate the diameter from the mean vel found
                 diaWork=D[m]
                 if w<=0 or w>=11:
                     if w<=0:#cas snow
@@ -1195,12 +1252,12 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                         if sk<=-0.5 and Zediff[m]>1.0:
                             state[m]=5.
                     
-   
+    
     ####################criteria from doi:10.5194/acp-16-2997-2016
                         if sk>=0. and w>2.:
                             state[m]=-15.
-                        if sigma>0.:
-                            state[m]=-0.
+                        if sigma>0:
+                            state[m]=0.
                     
                 Mmixed.append(NewM[m])
                 Value=10**18*lamb**4*np.nansum(NewM[m])/(np.pi**5*K2w)
@@ -1336,7 +1393,7 @@ def Parameters(n,d,v,da):#the differences between diameter aren't constant
         dif=[]
         
         
-        if da==1:#the code is in the dealiased axes
+        if da==1:#the code is in dealiased axes
             for m in range(len(D)):
                 if m==0 or m==len(D)-1:
                     if m==0:
@@ -1380,7 +1437,7 @@ def Parameters(n,d,v,da):#the differences between diameter aren't constant
         
     return Z,lwc,rr,ze
 
-def FindRealPeaks(matrix):#function to detect real peaks, wherein a peak has a minuim 3 consecutives values
+def FindRealPeaks(matrix):#function to detect real peaks, wherein a peak has a minimum 3 consecutives values
     Matrix=[]
     for i in range(len(matrix)):
         vector=matrix[i]
@@ -1514,7 +1571,7 @@ def Peak(vector):
 velc=299792458.#light speed 
 lamb=velc/(24.23*1e9)  #La frequency of radar is 24.23 GHz
 ag_lam=lamb
-fsampling=125000#Hz sampling frequency
+fsampling=125000#Hz frequencu sampling
 fNy=fsampling*lamb/(2*2*32*64) 
 K2w=0.92
 K2i=0.18
@@ -1546,11 +1603,9 @@ print('The script generate netcdf file with the same name of raw files\n')
 
 for name in dircf:
     
-    NameFile=name 
+    NameFile=name
 
-    
-    
-
+    Nw_2=[];Dm_2=[]
 
     f=open(NameFile,'r')
     NumberLines=0
@@ -1592,7 +1647,7 @@ for name in dircf:
     dv=[]
     for i in range(len(HIcolum2)):
         if i>=1:
-##            print(HIcolum2[i])
+
             dv.append(1+3.68*10**-5*HIcolum2[i]+1.71*10**-9*HIcolum2[i]**2)
 
     speed=np.arange(0,64*fNy,fNy)
@@ -1683,7 +1738,7 @@ for name in dircf:
     Waterm = ag_mre + 1.0j * ag_mim
 
 
-    #Initially paramaters from processer
+    #Initially parocesser parameters
     timeList=list()
 
     co=0
@@ -1775,10 +1830,13 @@ for name in dircf:
 
                 nc_nw[Timecount,:]=np.array(np.ma.masked_invalid(NW),dtype='f')
                 nc_dm[Timecount,:]=np.array(np.ma.masked_invalid(DM),dtype='f')
+                if ~np.isnan(DM).all():
+                    Nw_2.append(NW)
+                    Dm_2.append(DM)
                 
                 nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
                 nc_Z_e[Timecount,:]=np.array(np.ma.masked_invalid(Ze),dtype='f')
-                nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
+##                nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
 
                 nc_N_daTH[Timecount,:,:]=np.array(np.ma.masked_invalid(np.log10(NdE)),dtype='f')
                 
@@ -1787,7 +1845,7 @@ for name in dircf:
                 nc_SNR[Timecount,:]=np.array(np.ma.masked_invalid(snr),dtype='f')
                 nc_N_da[Timecount,:]=np.array(np.ma.masked_invalid(DSD),dtype='f')
 
-                nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
+##                nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
                
             break
 
@@ -1809,7 +1867,6 @@ for name in dircf:
         DSN=columns[6] #serial number
         BW=columns[8] #Witdh band
         CC=int(columns[10]) #Calibration constant
-##        print('cont cal',CC)
         MDQ=columns[12:15] 
                         
 
@@ -1834,7 +1891,7 @@ for name in dircf:
         vectorV=np.arange(0,64*fNy,fNy)
         
 
-        #constant value to convert F to f, include all constants
+        #constant value to conevrt F to f, include all constants
         Cte=DeltaH*float(CC)/(10**20)
         
         
@@ -1860,12 +1917,12 @@ for name in dircf:
         
         
 
-        for k in range(len(Harray)):#the result is the matrix corrected by transfer fuction and height, and dimension (LenHcolum)-1)
+        for k in range(len(Harray)):#the result is  amtrix crrected by transfer function and height, and dimension (LenHcolum)-1)
             COL=[row[k] for row in DataT]
 
             if k>=1:
                 quo=FTarray[k]/(k**2)
-                Pot.append(np.divide(COL,quo))#pot is the spectra potence (v,i) except by muliply a constant where each array is a column, or gate height
+                Pot.append(np.divide(COL,quo))#pot is the spectra potence (v,i) except by muliply a constant where eac array is a column, or gate height
 
 
         hcor=np.asarray(Harray[1:])
@@ -1880,6 +1937,7 @@ for name in dircf:
             if len(PotCorrSum)==0:
                 proeta=Pot*np.nan
             else:
+
 
                 proeta=Promig(PotCorrSum)
 
@@ -1900,7 +1958,7 @@ for name in dircf:
                 
 
                 nc_sig=dataset.createVariable('spectral width','f',ncShape2D)
-                nc_sig.description='spectral width of the spectral reflectivity with dealiasing'
+                nc_sig.description='spectral width of the spectral reflectivity  with dealiasing'
                 nc_sig.units='m/s'
                 
 
@@ -1947,9 +2005,9 @@ for name in dircf:
                 nc_Z_e.description='Equivalent Reflectivity'
                 nc_Z_e.units='dBZ'
 
-                nc_VerMov=dataset.createVariable('Vmov','f',ncShape2D)
-                nc_VerMov.description='Verical movement +1 downward -1 upward'
-                nc_VerMov.units='None'
+##                nc_VerMov=dataset.createVariable('Vmov','f',ncShape2D)
+##                nc_VerMov.description='Verical movement +1 downward -1 upward'
+##                nc_VerMov.units='None'
                 
                 nc_N_da=dataset.createVariable('N(D)','f',ncShape2D)
                 nc_N_da.description='Drop Size Distribution'
@@ -1964,7 +2022,7 @@ for name in dircf:
                 nc_SNR.units='dB'
 
                 nc_Noi=dataset.createVariable('Noise','f',ncShape2D)
-                nc_Noi.description='Noise from spectral reflectivity'
+                nc_Noi.description='Noise'
                 nc_Noi.units='m-1'
 
                 nc_nw=dataset.createVariable('Nw','f',ncShape2D)
@@ -1972,13 +2030,13 @@ for name in dircf:
                 nc_nw.units='log10(mm-1 m-3)'
 
                 nc_dm=dataset.createVariable('Dm','f',ncShape2D)
-                nc_dm.description='mean mass-weighted raindrop diameter'
+                nc_dm.description='mean mas-weighted raindrop diameter'
                 nc_dm.units='mm'
 
 
-                nc_VelTur=dataset.createVariable('Fall speed variability','f',ncShape2D)
-                nc_VelTur.description='Estimate the fall speed variability'
-                nc_VelTur.units='m/s'
+##                nc_VelTur=dataset.createVariable('Fall speed variability','f',ncShape2D)
+##                nc_VelTur.description='Estimate the fall speed variability'
+##                nc_VelTur.units='m/s'
 
                 nc_bb_bot=dataset.createVariable('BB_bottom','f',ncShape2D_BB)
                 nc_bb_bot.description='height from Bright Band bottom in meters a.g.l.'
@@ -1994,7 +2052,8 @@ for name in dircf:
             bb_bot,bb_top=BB(w,Ze,Harray[1:])
             estat,NW,DM,Lwc,Rr=CheckType(estat,bb_bot,bb_top,DeltaH,NW,DM,Lwc,Rr,sk,Ze,kur,snr,sig,w)
             z_da,Lwc,Rr,NW,DM,DSD,NdE=Rain_Par(estat,z_da,Lwc,Rr,NW,DM,NewMatrix,D,DSD,NdE,Harray[1:],w)
-         
+
+                
 
             nc_state[Timecount,:]=np.array(np.ma.masked_invalid(estat),dtype='f')
             nc_w[Timecount,:]=np.array(np.ma.masked_invalid(w),dtype='f')
@@ -2008,8 +2067,9 @@ for name in dircf:
             nc_nw[Timecount,:]=np.array(np.ma.masked_invalid(NW),dtype='f')
             nc_dm[Timecount,:]=np.array(np.ma.masked_invalid(DM),dtype='f')
 
-            
-
+            if ~np.isnan(DM).all():
+                Nw_2.append(NW)
+                Dm_2.append(DM)
 
             nc_bb_bot[Timecount,:]=np.array(np.ma.masked_invalid(bb_bot),dtype='f')
             nc_bb_top[Timecount,:]=np.array(np.ma.masked_invalid(bb_top),dtype='f')
@@ -2019,14 +2079,14 @@ for name in dircf:
             
             nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
             nc_Z_e[Timecount,:]=np.array(np.ma.masked_invalid(Ze),dtype='f')
-            nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
+##            nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
             
             nc_SnowR[Timecount,:]=np.array(np.ma.masked_invalid(SnowRate),dtype='f')
             nc_Noi[Timecount,:]=np.array(np.ma.masked_invalid(Noi),dtype='f')
             nc_SNR[Timecount,:]=np.array(np.ma.masked_invalid(snr),dtype='f')
             nc_N_da[Timecount,:]=np.array(np.ma.masked_invalid(DSD),dtype='f')
 
-            nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
+##            nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
 
             Timecount=Timecount+1
             
@@ -2035,6 +2095,30 @@ for name in dircf:
 
     f.close()
     print('\n')
+    dm_ax,nw_ax,PrepType=PrepType(Dm_2,Nw_2)
+    dataset.createDimension('Dm_ax',len(dm_ax))
+    dataset.createDimension('Nw_ax',len(nw_ax))
+
+    nc_ranges_Dm=dataset.createVariable('Dm_ax','f',('Dm_ax',))
+    nc_ranges_Nw=dataset.createVariable('Nw_ax','f',('Nw_ax',))
+    
+    nc_ranges_Dm.description = 'mean diameter axes to Precipitation type'
+    nc_ranges_Dm.units = '(mm)'
+    
+    nc_ranges_Nw.description = 'Intecept parameter axes to Precipitation type'
+    nc_ranges_Nw.units = 'log(m-3 mm-1)'
+
+    nc_ranges_Dm[:]=np.array(dm_ax,dtype='f4')
+    nc_ranges_Nw[:]=np.array(nw_ax,dtype='f4')
+
+
+
+    nc_TypePrecipitation=dataset.createVariable('TyPrecipi','f',('Dm_ax','Nw_ax',))
+    nc_TypePrecipitation.description='Type Precipitation where the value 5 is convective, 0 is transition and -5 is stratiform'
+    nc_TypePrecipitation.units='none'
+
+    nc_TypePrecipitation[:,:]=np.array(np.ma.masked_invalid(PrepType),dtype='f')
+    
     print(datetime.datetime.now())                    
 
 
