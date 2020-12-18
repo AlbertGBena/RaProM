@@ -44,6 +44,7 @@ The script produces the following outputs from MRR raw data:<br />
 **D<sub>m</sub>:** Mean mass-wighted raindrop diameter (mm)<br />
 **BB<sub>bottom</sub>:** Bright Band bottom height  (m) (above MRR level)<br />
 **BB<sub>top</sub>:** Bright Band top height (m) (above MRR level)<br />
+**TyPrecipi:** Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform"<br />
 
 
 ## How to execute the script
