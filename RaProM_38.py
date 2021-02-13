@@ -462,13 +462,13 @@ def group(a,indexcentral,Nnan,d):
             else:
                 index=indexcentral
         
-        cond=True
+        cond=1
         cont=0
         incr1=0#starts at 0
 
         while cond:
             if cont>=Nnan or index+incr1>=len(a)-1:
-                cond=False
+                cond=0
             
             if np.isnan(a[index+incr1]):
                 cont+=1
@@ -481,10 +481,10 @@ def group(a,indexcentral,Nnan,d):
         cont=0;
         incr2=1#starts at 1
         
-        cond=True
+        cond=1
         while cond:
             if cont>=Nnan or index-incr2<=0:
-                cond=False
+                cond=0
             
             if np.isnan(a[index-incr2]):
                 cont+=1
@@ -510,13 +510,13 @@ def group(a,indexcentral,Nnan,d):
             else:
                 index=indexcentral-64
         
-        cond=True
+        cond=1
         cont=0
         incr1=0#starts at 0
     
         while cond:
             if cont>=Nnan or index+incr1>=len(acut)-1:
-                cond=False
+                cond=0
             
             if np.isnan(acut[index+incr1]):
                 cont+=1
@@ -529,10 +529,10 @@ def group(a,indexcentral,Nnan,d):
         cont=0;
         incr2=1#starts at 1
         
-        cond=True
+        cond=1
         while cond:
             if cont>=Nnan or index-incr2<=0:
-                cond=False
+                cond=0
             
             if np.isnan(acut[index-incr2]):
                 cont+=1
@@ -1505,7 +1505,7 @@ def HildrenS(matrix):
         v2=np.ones(shape=(len(v)))*np.nan#create the vector result
         meanv=np.nanmean(v)
         varv=np.nanvar(v)
-        if (meanv**2/(varv))>58 or varv==0:#bad signal
+        if (meanv**2/(varv))>58 or varv==0 or np.isnan(varv):#bad signal
             v2=np.ones(shape=(len(v)))*np.nan
             soroll=np.nan
             PotWithOutHS.append(v2)
@@ -1523,11 +1523,11 @@ def HildrenS(matrix):
             v[v>v[indMax[maxim]]]=np.nan
             PotWithOutHS.append(v)
             
-            condition=True
+            condition=1
             while condition:
                 if (np.power(np.nanmean(v),2)/np.nanvar(v))>58 or np.nanvar(v)==0.:
                     soroll=np.nanmean(v)
-                    condition=False
+                    condition=0
 
                 np.put(v2,np.nanargmax(v),np.nanmax(v))
                 np.put(v,np.nanargmax(v),np.nan)
@@ -1609,21 +1609,21 @@ for name in dircf:
     
 
 
-    f=open(NameFile,'r')
-    NumberLines=0
-    while True:
-        line=f.readline()
-
-        line=line.strip()
-        if line=='':
-            break
-        NumberLines+=1
-    NumberSpectre=NumberLines/67.#divide by 67 because is the number of lines from spectrum
-
-
-
-    
-    f.close()
+######    f=open(NameFile,'r')
+######    NumberLines=0
+######    while 1:
+######        line=f.readline()
+######
+######        line=line.strip()
+######        if line=='':
+######            break
+######        NumberLines+=1
+######    NumberSpectre=NumberLines/67.#divide by 67 because is the number of lines from spectrum
+######
+######
+######
+######    
+######    f.close()
 
     
 
@@ -1751,6 +1751,7 @@ for name in dircf:
 
     PotSumWN=np.empty(shape=[32,64])
     PotSum=np.empty(shape=[31,64])#there is 32 height but the firts height is deleted
+    NullMatrix=np.ones(np.shape(PotSum))*np.nan
     
 
     Timecount=0
@@ -1762,7 +1763,7 @@ for name in dircf:
     countwork=0
     
 
-    while True:
+    while 1:
         
         
         if countwork==7:
@@ -1938,7 +1939,7 @@ for name in dircf:
             TimeCounter+=1
             timeVec=timeList[0]+(IntTime*TimeCounter)
             if len(PotCorrSum)==0:
-                proeta=Pot*np.nan
+                proeta=NullMatrix
             else:
 
 
@@ -2096,31 +2097,33 @@ for name in dircf:
         PotCorrSum.append(Pot)#add matrix
 
     f.close()
-    print('\n')
-    dm_ax,nw_ax,PrepType=PrepType(Dm_2,Nw_2)
-    dataset.createDimension('Dm_ax',len(dm_ax))
-    dataset.createDimension('Nw_ax',len(nw_ax))
+    if ~np.isnan(Dm_2).all() and ~np.isnan(Nw_2).all():
+        dm_ax,nw_ax,PrepTypeC=PrepType(Dm_2,Nw_2)
+        dataset.createDimension('Dm_ax',len(dm_ax))
+        dataset.createDimension('Nw_ax',len(nw_ax))
 
-    nc_ranges_Dm=dataset.createVariable('Dm_ax','f',('Dm_ax',))
-    nc_ranges_Nw=dataset.createVariable('Nw_ax','f',('Nw_ax',))
+        nc_ranges_Dm=dataset.createVariable('Dm_ax','f',('Dm_ax',))
+        nc_ranges_Nw=dataset.createVariable('Nw_ax','f',('Nw_ax',))
+        
+        nc_ranges_Dm.description = 'mean diameter axes to Rainfall type'
+        nc_ranges_Dm.units = '(mm)'
+        
+        nc_ranges_Nw.description = 'Intecept parameter axes to Rainfall type'
+        nc_ranges_Nw.units = 'log(m-3 mm-1)'
+
+        nc_ranges_Dm[:]=np.array(dm_ax,dtype='f4')
+        nc_ranges_Nw[:]=np.array(nw_ax,dtype='f4')
+
+
+
+        nc_TypePrecipitation=dataset.createVariable('TyPrecipi','f',('Dm_ax','Nw_ax',))
+        nc_TypePrecipitation.description='Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform'
+        nc_TypePrecipitation.units='none'
+
+        nc_TypePrecipitation[:,:]=np.array(np.ma.masked_invalid(PrepTypeC),dtype='f')
+    print(datetime.datetime.now())
+    print('\r\n')
     
-    nc_ranges_Dm.description = 'mean diameter axes to Rainfall type'
-    nc_ranges_Dm.units = '(mm)'
-    
-    nc_ranges_Nw.description = 'Intecept parameter axes to Rainfall type'
-    nc_ranges_Nw.units = 'log(m-3 mm-1)'
-
-    nc_ranges_Dm[:]=np.array(dm_ax,dtype='f4')
-    nc_ranges_Nw[:]=np.array(nw_ax,dtype='f4')
-
-
-
-    nc_TypePrecipitation=dataset.createVariable('TyPrecipi','f',('Dm_ax','Nw_ax',))
-    nc_TypePrecipitation.description='Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform'
-    nc_TypePrecipitation.units='none'
-
-    nc_TypePrecipitation[:,:]=np.array(np.ma.masked_invalid(PrepType),dtype='f')
-    print(datetime.datetime.now())                    
 
 
 
