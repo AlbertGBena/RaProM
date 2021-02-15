@@ -1,6 +1,7 @@
 # ImproveProcessRawMRR - RaProM.py
 
-RaProM is a novel MRR processing methodology, with enhanced spectra processing and Doppler dealiasing, that produces as output data a number of fields which include equivalent reflectivity (Ze), Doppler fall speed and derived parameters such as spectral width, skewness, and kurtosis, plus a simplified precipitation type classification (drizzle, rain, mixed, snow, and hail), and additional variables depending on the precipitation type. Note: the scripts works for MRR-2.
+RaProM is a novel MRR processing methodology, with enhanced spectra processing and Doppler dealiasing, that produces as output data a number of fields which include equivalent reflectivity (Ze), Doppler fall speed and derived parameters such as spectral width, skewness, and kurtosis, plus a simplified precipitation type classification (drizzle, rain, mixed, snow, and hail), and additional variables depending on the precipitation type. **Note: the scripts works for MRR-2.**
+An additional file CorrecRawFile is added. If you know that your raw file has written errors, please execute this file before RaProM. You can execute this file with command window or idle.
 
 More information at: Garcia-Benadí et al (2020)
 https://doi.org/10.3390/rs12244113
@@ -62,7 +63,8 @@ The script asks the directory where the raw files to be processed are located (i
 ```
 c:\mrrdata\test\
 ```
-**NOTE: the path must end with \\ in Windows or a / in Linux**<br />
+**NOTE 1: the path must end with \\ in Windows or a / in Linux**<br />
+**NOTE 2: Be careful to not have spaces and special characters in your file path**<br />
 
 The script asks for the integration time (in seconds, usually 60)
 
@@ -70,6 +72,11 @@ The script indicates the number of raw files in the folder and starts the proces
 
 The result is stored in a netcdf file with the same name but finished "-processed"
 
+## Do you have any problem with your data?
+If so, your RAW files may be corrupted. There is a new script for this called CorrecRawFiles-py_XX.py .
+This script analyze every line in the origin RAW file and fixes it. If errors are found, a new file with 
+the same name but finished as -corrected will be created.
+To execute the script follow the same steps described above.
 
 ## Contact
 If you have any question, please contact with Albert at albert.garcia@meteo.ub.edu  or   albert.garcia-benadi@upc.edu
