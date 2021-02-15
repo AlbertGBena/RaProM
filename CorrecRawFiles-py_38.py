@@ -213,7 +213,7 @@ dircf=glob.glob(Root+'*.raw')
 dircf=np.sort(dircf)
 print('In this folder there are '+str(len(dircf))+' raw files')
 ##print('The script generate netcdf file with the same name of raw files or include correted at the end\n')
-print('A new file with the same name but finished as -corrected is created \n')
+print('If errors are found, a new file with the same name but finished as -corrected will be created \n')
 
 for name in dircf:
     
