@@ -39,7 +39,7 @@ def CorrectorFile(fid):
     timeList=list()
     f.close()
 ########CHECKING FOR ERRORS IN THE RAW FILE
-    f=open(NameFile,'r')
+    f=open(NameFile,'r', errors='ignore')
     cond=1
     lineCount=0
     LineCount=0
@@ -121,7 +121,7 @@ def CorrectorFile(fid):
         OutName=FileCorre
 
         f1=open(FileCorre2,'w+')
-        f=open(FileCorre,'r')
+        f=open(FileCorre,'r', errors='ignore')
 
 ########CHECKING FOR JUMPS TIME FOR THE SYNCHRONIZATION
 
