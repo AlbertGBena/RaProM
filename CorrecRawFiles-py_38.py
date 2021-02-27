@@ -17,11 +17,15 @@ def unix2date(unix):
     return datetime.datetime.utcfromtimestamp(unix)
 
 def CorrectorFile(fid):
-    NameFile=fid 
+    NameFile=fid
 
-    FileCorre=NameFile[:-4]+'-corrected.raw' #create a new file
+    OutNameFile=NameFile[:-4]+'-corrected'
 
-    FileCorre2=NameFile[:-4]+'-corrected-2.raw' #create a new file
+    FileCorre=NameFile[:-4]+'-correctedRepetition.raw' #create a new file
+
+    FileCorre2=NameFile[:-4]+'-correctedErrors.raw' #create a new file
+
+    FileCorre3=NameFile[:-4]+'-correctedJumps.raw' #create a new file
 
     
 
@@ -29,17 +33,61 @@ def CorrectorFile(fid):
     if not os.path.exists(folderName):
         os.mkdir(folderName)
     
-    f1=open(FileCorre,'w+')
+##    f1=open(FileCorre,'w+')
 
-    f=open(NameFile,'r')
+    f=open(NameFile,'r', errors='ignore')
     file_length = len(f.read().split('\n'))
     totallines=(file_length-7)/67
     
     m=0
     timeList=list()
     f.close()
-########CHECKING FOR ERRORS IN THE RAW FILE
+
+
+########CHECKING FOR HEADERS REPETITION
     f=open(NameFile,'r', errors='ignore')
+    f1=open(FileCorre,'w+')
+    
+    
+    cond=1
+    CountM=0#number repetittion
+    countM=0
+    while cond:
+        
+        line=f.readline()
+        if line=='':
+            break
+
+    
+        line2=line.strip()
+        columns=line2.split()
+
+        valor=columns[0]
+
+                
+        
+        if valor[0]=='M' or valor[0]=='H':
+            if valor[0]=='M':
+                line1=line
+                countM+=1
+            if valor[0]=='H':
+                Line=line1+line
+                f1.write(Line)
+                CountM=countM-1
+                countM=0
+        else:
+            Line=line
+            f1.write(Line)
+##        print('rep header ',CountM)
+##        print('linea ',line)
+
+        
+    f1.close()
+    f.close()
+########CHECKING FOR ERRORS IN THE RAW FILE
+    f=open(FileCorre,'r')
+    f1=open(FileCorre2,'w+')
+    
     cond=1
     lineCount=0
     LineCount=0
@@ -108,24 +156,33 @@ def CorrectorFile(fid):
     f1.close()
     f.close()
 
-    if lineCount==0:
-        os.remove(FileCorre)
-        OutName=NameFile
-        f1=open(FileCorre,'w+')
-        f=open(NameFile,'r')
-        
-        
-    else:
-        shutil.copy(os.path.join('folder', NameFile), folderName)
-        os.remove(NameFile)
-        OutName=FileCorre
+##    if lineCount==0:
+##        os.remove(FileCorre)
+##        OutName=NameFile
+##        f1=open(FileCorre,'w+')
+##        f=open(NameFile,'r', errors='ignore')
+##        
+##        
+##    else:
+##        shutil.copy(os.path.join('folder', NameFile), folderName)
+##        os.remove(NameFile)
+##        OutName=FileCorre
+##
+##        f1=open(FileCorre2,'w+')
+##        f=open(FileCorre,'r')
 
-        f1=open(FileCorre2,'w+')
-        f=open(FileCorre,'r', errors='ignore')
+
+            
+
+
+
+
 
 ########CHECKING FOR JUMPS TIME FOR THE SYNCHRONIZATION
 
-    
+    f=open(FileCorre2,'r')
+    f1=open(FileCorre3,'w+')
+    cond=1
 
     while cond:
         
@@ -177,28 +234,57 @@ def CorrectorFile(fid):
           
     f1.close()
     f.close()
-    if m==0 and lineCount==0:
+######    NOW DELETE THE FILES CORRECTED IF THERE AREN'T CORRECTIONS. m is for jumps correction, lineCount for error corrections and CountM for repetitions header
+    if m==0 and lineCount==0 and CountM==0:
         os.remove(FileCorre)
+        os.remove(FileCorre2)
+        os.remove(FileCorre3)
 
         OutName=NameFile
-    if m==0 and lineCount!=0:
+    if m==0 and lineCount!=0 and CountM==0:
+        shutil.copy(os.path.join('folder', NameFile), folderName)
+        os.remove(NameFile)
+
+        os.remove(FileCorre)
+        os.remove(FileCorre3)
+        OutName=FileCorre2
+        os.rename(FileCorre2,OutNameFile+'.raw')
+    if m==0 and lineCount==0 and CountM!=0:
+        shutil.copy(os.path.join('folder', NameFile), folderName)
+        os.remove(NameFile)
 
         os.remove(FileCorre2)
+        os.remove(FileCorre3)
         OutName=FileCorre
+        os.rename(FileCorre,OutNameFile+'.raw')
+    if m!=0 and lineCount==0 and CountM==0:
+        shutil.copy(os.path.join('folder', NameFile), folderName)
+        os.remove(NameFile)
 
-    if m!=0 and lineCount!=0:
-
-        shutil.copy(os.path.join('folder', FileCorre), folderName)
         os.remove(FileCorre)
+        os.remove(FileCorre2)
+        OutName=FileCorre3
+        os.rename(FileCorre3,OutNameFile+'.raw')
+
+    if m!=0 and lineCount!=0 and CountM!=0:
+
+        shutil.copy(os.path.join('folder', NameFile), folderName)
+        os.remove(NameFile)
+##        os.remove(NameFile)
+        os.remove(FileCorre)
+        os.remove(FileCorre2)
         
-        OutName=FileCorre2[:-6]+'.raw'
+        OutName=FileCorre3
         
 ##        print('From file ',FileCorre2[:-6]+'.raw',' ',m, 'rows were deleted for time jumps\n',)
 ##        print('A new file with the same name but finished as -corrected is created ')
-        os.rename(FileCorre2,FileCorre2[:-6]+'.raw')
-    print('In ',NameFile,' the ratio of correction is ',round(100.*(m+lineCount)/TotalLinesFile,2),'% where ',m+lineCount,' rows were deleted from ',TotalLinesFile,' rows')
+        os.rename(FileCorre3,OutNameFile+'.raw')
+    print('In ',NameFile,' the ratio of correction is ',round(100.*(m+lineCount+CountM)/TotalLinesFile,2),'% where ',m+lineCount+CountM,' rows were deleted from ',TotalLinesFile,' rows')
+    print('Number of lines deleted by Header repetition ',CountM)
+    print('Number of lines deleted by Errors lines ',lineCount)
+    print('Number of lines deleted by jumps time ',m)
 ##    print('total lines',TotalLinesFile,' and deleted ',m+lineCount)
-    return OutName
+##    return OutName
 
 np.warnings.filterwarnings('ignore')#to avoid the error messages
 
@@ -213,7 +299,7 @@ dircf=glob.glob(Root+'*.raw')
 dircf=np.sort(dircf)
 print('In this folder there are '+str(len(dircf))+' raw files')
 ##print('The script generate netcdf file with the same name of raw files or include correted at the end\n')
-print('If errors are found, a new file with the same name but finished as -corrected will be created \n')
+print('A new file with the same name but finished as -corrected is created \n')
 
 for name in dircf:
     
