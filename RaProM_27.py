@@ -2122,18 +2122,5 @@ for name in dircf:
         nc_TypePrecipitation[:,:]=np.array(np.ma.masked_invalid(PrepTypeC),dtype='f')
     print(datetime.datetime.now())
     print('\r\n')
-    
-
-
-
 
     dataset.close()
-        
-
-
-            
-
-            
-                                
-                                
-            
