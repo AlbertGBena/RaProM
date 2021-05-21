@@ -9,7 +9,7 @@ import datetime
 import time
 import miepython as mp
 from math import e
-from netCDF4 import Dataset
+from netCDF4 import Dataset,num2date,date2num
 import glob
 import os
 import sys
@@ -37,7 +37,7 @@ def PrepType(dm,nw):
     for i in range(len(Dm)):
         if ~np.isnan(Dm[i])and ~np.isnan(Nw[i]):
             y=6.3-1.6*Dm[i]
-            ThuInd=Nw[i]-y#thurai(2016) index
+            ThuInd=Nw[i]-y#thurai(2016) index from https://doi.org/10.1016/j.atmosres.2015.04.011
             Dm2.append(round(Dm[i],1))
             Nw2.append(round(Nw[i],1))
             Y2.append(round(ThuInd,1))
@@ -64,7 +64,7 @@ def PrepType(dm,nw):
 
                         Matrix[i][k]=Y2[j]
 
-##    Matrix is the matrix with the values de index Thurai(2016)
+##    Matrix is the matrix with the values de index Thurai(2016) https://doi.org/10.1016/j.atmosres.2015.04.011
 ##now give the values from precypitation type where convective is 1, transition is 0 and stratiform is -1
     for i in range(len(Matrix)):
         for j in range(len(Matrix[i])):
@@ -89,11 +89,13 @@ def smooth(y, box_pts):
     box = np.ones(box_pts)/box_pts
     y_smooth = np.convolve(y, box, mode='same')
     return y_smooth
-def Rain_Par(state,Z,LWC,RR,Nw,Dm,NewM,D,N_da,NdE,he,w):
+def Rain_Par(state,Z,LWC,RR,Nw,Dm,NewM,D,N_da,NdE,he,w,Pia):
     PIA=[];Nde=[];he=np.asarray(he)
+    PIA.append(1.)
     roW=10**6 #water density g/m3
     for m in range(np.size(state)):
         if state[m]==10 or state[m]==5:#rain case
+            PIA.append(Pia[m+1])
             dif=[]#diference between diameters for N
             dif2=[]#diference between diameters for Z
             nde=[]
@@ -114,43 +116,14 @@ def Rain_Par(state,Z,LWC,RR,Nw,Dm,NewM,D,N_da,NdE,he,w):
                 
 
                 EtaV=NewM[m][64:64*2]#interval for water choosed
-                value=6.18*EtaV[n]*dv[m]*e**(-1*0.6*D[m][n])
+                value=6.18*EtaV[n]*dv[m]*e**(-1*0.6*D[m][n])#units m-1 mm-1
                 s=SigmaScatt[m][n]
                 value2=(10**6)*(value/s)#N in m-3 mm-1
                 nde.append(value2)#units mm-1 m-3
 
-                ##                APPLY THE ATTENUATTION
-            if m==0:
-                PIA.append(1)
-            if m!=0 and len(PIA)==0:
-                PIA.append(np.ones(m+1))
-                    
-            Np=np.multiply(nde,PIA[-1])
-            Pro=[]
-            for k in range(len(Np)):
-                pro=SigmaExt[m][k]*Np[k]*dif[k]
-            
-                Pro.append(pro)
-           
-            kp=np.nansum(Pro)*10**-6
-        
-            num=2*kp*he[m]
-            N=-np.multiply(Np,np.log(1-num)/num)
-            Pro2=[]
-            for k in range(len(N)):
-                pro2=SigmaExt[m][k]*N[k]*dif[k]
-                Pro2.append(pro2)
-            
-            Kr=np.nansum(Pro2)*10**-6
-            pia=PIA[-1]*e**(2*Kr*he[m])
-            if pia>=10. or num==0.:
-                pia=10.
-                LastN=nde
-            else:
-                LastN=N
-            PIA.append(pia)
-                
 
+                
+            LastN=nde
             NdE[m]=LastN
 
             value=np.nansum(np.prod([np.power(D[m],6),LastN,dif2],axis=0))
@@ -184,11 +157,12 @@ def Rain_Par(state,Z,LWC,RR,Nw,Dm,NewM,D,N_da,NdE,he,w):
             else:
                 Dm[m]=(value4/value2)
                 Nw[m]=(np.log10(256.*(roW*value2*(np.pi/6.))/ (np.pi*roW*(value4/value2)**4)))#units m-3 mm-1
-            
+        else:
+            PIA.append(np.nan)
 
 
 
-        return Z,LWC,RR,Nw,Dm,N_da,NdE
+    return Z,LWC,RR,Nw,Dm,N_da,NdE,PIA
 def CheckType(Type,BB_bot,BB_top,Deltah,NW,DM,LWC,RR,Sk,Ze,Kur,SNR,Sigma,w):
     
     diffZe=np.diff(Ze)
@@ -294,7 +268,6 @@ def BB(v,Z,h):#the input are fall speed, equivalent reflectivity and height
                     indbot=i+1
                     break
                 
-            #find the BB top
 
             
             if np.isnan(hBBbottom):
@@ -747,9 +720,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                 if abs(L)>=limitValueDeal:
                     
                     LonCut=int(len(etaN[o]))
-##                    print(LonCut)
                     n1=np.ones(shape=(LonCut))*np.nan
-                    
                     n2=etaN_da[LonCut:LonCut*2]
                     nc1=np.concatenate((n1,n2))
                     ReVect=np.concatenate((nc1,n1))#vector corrected
@@ -765,7 +736,6 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                 if S>=limitValueDeal:
                     
                     LonCut=int(len(etaN[o])/2)
-##                    print(LonCut)
                     n1=np.ones(shape=(LonCut))*np.nan
                     n3=np.ones(3*LonCut)*np.nan
                     n2=etaN_da[LonCut:LonCut+len(etaN[o])]
@@ -987,7 +957,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                     CountIndole.append(int(indole[0]))
         
 
-        for m in range(len(state)):#revise the evalutaion############################
+        for m in range(len(state)):#delete sporadic values
             if m!=0 and m!=len(state)-1:
                 s1=state[m-1]
                 s2=state[m]
@@ -1013,6 +983,8 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
         vel=np.copy(speeddeal)
         Nde=[]
         PIA=[]
+        PIA_total=[]
+        PIA_total.append(1.)
 ############        create the vector diff Ze to detect drizzle
         Vector=[]
         for m in range(len(NewM)):
@@ -1026,6 +998,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
 ############        check the type
         
         for m in range(len(NewM)):
+            
             vector=NewM[m]
             
             
@@ -1049,6 +1022,63 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
             Sig.append(sigma)
             Sk.append(sk)
             Kurt.append(Kur)
+            dif=[]#diference between diameters for N
+            dif2=[]#diference between diameters for Z
+            nde=[]
+            indexFinded=[]
+            for n in range(len(D[m])):
+                if n==0 or n==len(D[m])-1:
+                    if n==0:
+                        dif2.append(D[m][n+1]-D[m][n])
+                        dif.append(D[m][n+1]-D[m][n])
+                    if n==len(D[m])-1:
+                        dif.append(abs(D[m][n-1]-D[m][n]))
+                        dif2.append(abs(D[m][n]-D[m][n-1]))
+                else:
+                    dif2.append(abs((D[m][n+1]-D[m][n])))
+                    dif.append(abs((D[m][n+1]-D[m][n-1]))/2.)
+                    condFH=speed[n]-w
+                        
+                    if condFH>=0:
+                        indexFinded.append(n)
+                        
+                
+                EtaV=NewM[m][64:64*2]#interval for water choosed
+                value=6.18*EtaV[n]*dv[m]*e**(-1*0.6*D[m][n])
+                s=SigmaScatt[m][n]
+                value2=(10**6)*(value/s)#N in m-3 mm-1
+                nde.append(value2)#units mm-1 m-3
+                
+                
+                ##                APPLY THE ATTENUATTION
+            DeltaR=he[3]-he[2]
+            
+                        
+            Np=np.multiply(nde,PIA_total[-1])#m-3 mm-1
+            Pro=[]
+            for k in range(len(Np)):
+                pro=SigmaExt[m][k]*Np[k]*dif[k]
+                
+                Pro.append(pro)
+               
+            kp=np.nansum(Pro)*10**-6#m-1
+            
+            num=2.*kp*DeltaR#WHERE DeltaR is m
+            N=-1.*np.multiply(Np,np.log(1-num)/num)#units mm-1 m-3
+            Pro2=[]
+            for k in range(len(N)):
+                pro2=SigmaExt[m][k]*N[k]*dif[k]
+                Pro2.append(pro2)
+                
+            Kr=np.nansum(Pro2)*10**-6
+            pia=PIA_total[-1]*e**(-2.*Kr*DeltaR)
+            if pia>=10. or num==0.:
+                if num==0.:
+                    pia=np.nan
+                else:
+                    pia=10.
+    
+            PIA_total.append(pia)
 
             
             
@@ -1099,48 +1129,13 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                         
                         diamHail=diaWork[indexFinded[0]]
                 
-                    
-                
-                ##                APPLY THE ATTENUATTION
-                if m==0:
-                    PIA.append(1)
-                if m!=0 and len(PIA)==0:
-                    PIA.append(np.ones(m+1))
-                    
-                Np=np.multiply(nde,PIA[-1])
-                Pro=[]
-                for k in range(len(Np)):
-                    pro=SigmaExt[m][k]*Np[k]*dif[k]
-            
-                    Pro.append(pro)
-           
-                kp=np.nansum(Pro)*10**-6
-        
-                num=2*kp*he[m]
-                N=-np.multiply(Np,np.log(1-num)/num)
-                Pro2=[]
-                for k in range(len(N)):
-                    pro2=SigmaExt[m][k]*N[k]*dif[k]
-                    Pro2.append(pro2)
-            
-                Kr=np.nansum(Pro2)*10**-6
-                pia=PIA[-1]*e**(2*Kr*he[m])
-                if pia>=10. or num==0.:
-                    pia=10.
-                    LastN=nde
-                else:
-                    LastN=N
-                PIA.append(pia)
+
+                LastN=N
+
                 
 
                 Nde.append(LastN)
-##########                ALTERNATIVE PROCESSING
-##                nD=np.copy(D[m])
-##                nD[nD<(0.109*2.)]=np.nan#delete the values less 0.109*2 mm
-##                value=np.nansum(np.prod([np.power(nD,6),LastN,dif2],axis=0))
-##                value2=np.nansum(np.prod([np.power(nD,3),LastN,dif2],axis=0))
-##                value3=np.nansum(np.prod([np.power(nD,3),LastN,dif2,w],axis=0))
-##                value4=np.nansum(np.prod([np.power(nD,4),LastN,dif2],axis=0))
+
                 value=np.nansum(np.prod([np.power(D[m],6),LastN,dif2],axis=0))
                 value2=np.nansum(np.prod([np.power(D[m],3),LastN,dif2],axis=0))
                 value3=np.nansum(np.prod([np.power(D[m],3),LastN,dif2,w],axis=0))
@@ -1164,7 +1159,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                     
 
                     if m<len(Zediff):
-                        if sk<=-0.5 and Zediff[m]>=1.:#New criteria from empric values. Then an artcile very interesting https://doi.org/10.1175/JTECH-D-18-0158.1
+                        if sk<=-0.5 and Zediff[m]>=1.:#New criteria from empiric values. From an artcile very interesting https://doi.org/10.1175/JTECH-D-18-0158.1
 
                             
                             MDriz.append(NewM[m])
@@ -1361,9 +1356,12 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
         VerTur=blanck
         Snr=blanck
         PIA=np.nan*np.ones(shape=(len(etaN)+1))
+        PIA_total=np.nan*np.ones(shape=(len(etaN)+1))
     if len(PIA)==31:
         PIA.append(np.nan)
-    return state,NewM,Z_da,lwc,rr,SnowRate,W,Sig,Sk,Noise,N_da,Nde,ZE,mov,VerTur,Snr,Kurt,PIA,nw,dm
+    if len(PIA_total)==31:
+        PIA_total.append(np.nan)
+    return state,NewM,Z_da,lwc,rr,SnowRate,W,Sig,Sk,Noise,N_da,Nde,ZE,mov,VerTur,Snr,Kurt,PIA,nw,dm,PIA_total
 
        
     
@@ -1486,7 +1484,7 @@ def ScatExt(diameter,longW):#for 1 height gate
             absorb  = (qext - qsca) * np.pi * r**2
             scatt.append(qsca * np.pi * r**2)
             extinct.append(qext* np.pi * r**2)
-    return scatt,extinct
+    return scatt,extinct#the output are mm^2
             
 
         
@@ -1568,7 +1566,7 @@ def Peak(vector):
 
 
 velc=299792458.#light speed 
-lamb=velc/(24.23*1e9)  #La frequency of radar is 24.23 GHz
+lamb=velc/(24.23*1e9)  #The frequency of radar is 24.23 GHz, units from lamb m
 ag_lam=lamb
 fsampling=125000#Hz frequencu sampling
 fNy=fsampling*lamb/(2*2*32*64) 
@@ -1606,28 +1604,6 @@ for name in dircf:
     Nw_2=[];Dm_2=[]
 
     
-    
-
-
-######    f=open(NameFile,'r')
-######    NumberLines=0
-######    while 1:
-######        line=f.readline()
-######
-######        line=line.strip()
-######        if line=='':
-######            break
-######        NumberLines+=1
-######    NumberSpectre=NumberLines/67.#divide by 67 because is the number of lines from spectrum
-######
-######
-######
-######    
-######    f.close()
-
-    
-
-
 
     count=0
     NameFile=CorrectorFile(NameFile)
@@ -1666,7 +1642,7 @@ for name in dircf:
         for j in range(len(speed)):
             
             b=speed[j]/dv[i]
-    ##        print(b,speed[j],dv[i])
+    
             if b>=0.002 and b<=9.37:#Condition of diameter is good for 0.109 mm< D< 6 mm
                 d.append(np.log((9.65-b)/10.3)*(-1/0.6))
             else:
@@ -1689,8 +1665,10 @@ for name in dircf:
     dataset.createDimension('BB_Height',1)
 
     dataset.createDimension('time',None)
+    dataset.createDimension('time_utc',None)
 
     nc_times=dataset.createVariable('Time','float64',('time',))
+    nc_Format_times=dataset.createVariable('time_utc', 'float64', ('time_utc',))
     nc_ranges_H=dataset.createVariable('Height','f',('Height',))
     nc_ranges_H_PIA=dataset.createVariable('PIA_Height','f',('PIA_Height',))
     nc_ranges_H_BB=dataset.createVariable('BB_Height','f',('BB_Height',))
@@ -1698,6 +1676,10 @@ for name in dircf:
 
     nc_times.units = 'UNIX Time Stamp, SECONDS SINCE 1970-01-01'
     nc_times.description='Time in unix format'
+
+    nc_Format_times.units='seconds since 1970-01-01'
+    nc_Format_times.calendar='standard'
+    nc_Format_times.decription='time UTC'
 
     nc_ranges_H.units = 'm'
     nc_ranges_H.description = 'Heights in meters a.g.l.'
@@ -1717,6 +1699,7 @@ for name in dircf:
     ##Found the scatter and extint sections in function of height and speed
     SigmaScatt=[]
     SigmaExt=[]
+##    print(len(D),len(D[0]))
     for i in range(len(D)):#entry in height
         sig1,sig2=ScatExt(D[i],lamb)
         SigmaScatt.append(sig1)
@@ -1805,16 +1788,23 @@ for name in dircf:
 
                 timeVec=timeList[0]+(IntTime*TimeCounter)
                 nc_times[Timecount:Timecount+1]=timeVec#add 1 second, beacuse the timestapmps from Mrr is the last second
+                nc_Format_times[Timecount:Timecount+1]=date2num(unix2date(timeVec),units=nc_Format_times.units,calendar=nc_Format_times.calendar)
     
     
 
                 proeta=Promig(PotCorrSum)
                 
 
-                estat,NewMatrix,z_da,Lwc,Rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA,NW,DM=Process(proeta,Harray[1:],timeVec,D)
+                estat,NewMatrix,z_da,Lwc,Rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA_par,NW,DM,PiA=Process(proeta,Harray[1:],timeVec,D)
                 bb_bot,bb_top=BB(w,Ze,Harray[1:])
                 estat,NW,DM,Lwc,Rr=CheckType(estat,bb_bot,bb_top,DeltaH,NW,DM,Lwc,Rr,sk,Ze,kur,snr,sig,w)
-                z_da,Lwc,Rr,NW,DM,DSD,NdE=Rain_Par(estat,z_da,Lwc,Rr,NW,DM,NewMatrix,D,DSD,NdE,Harray[1:],w)
+                z_da,Lwc,Rr,NW,DM,DSD,NdE,PiA_da=Rain_Par(estat,z_da,Lwc,Rr,NW,DM,NewMatrix,D,DSD,NdE,Harray[1:],w,PiA)
+                Z_da=[]
+                for n in range(len(z_da)):
+                    
+                    Z_da.append(z_da[n]-10.*np.log10(PiA_da[n+1]))
+                    
+                
 
                 nc_state[Timecount,:]=np.array(np.ma.masked_invalid(estat),dtype='f')
                 nc_w[Timecount,:]=np.array(np.ma.masked_invalid(w),dtype='f')
@@ -1822,7 +1812,8 @@ for name in dircf:
                 nc_sk[Timecount,:]=np.array(np.ma.masked_invalid(sk),dtype='f')
                 nc_kur[Timecount,:]=np.array(np.ma.masked_invalid(kur),dtype='f')
 
-                nc_PIA[Timecount,:]=np.array(np.ma.masked_invalid(PiA),dtype='f')
+                nc_PIA[Timecount,:]=np.array(np.ma.masked_invalid(10.*np.log10(PiA_da)),dtype='f')
+                nc_PIA_all[Timecount,:]=np.array(np.ma.masked_invalid(10.*np.log10(PiA)),dtype='f')
 
                 nc_bb_bot[Timecount,:]=np.array(np.ma.masked_invalid(bb_bot),dtype='f')
                 nc_bb_top[Timecount,:]=np.array(np.ma.masked_invalid(bb_top),dtype='f')
@@ -1837,9 +1828,10 @@ for name in dircf:
                     Nw_2.append(NW)
                     Dm_2.append(DM)
                 
-                nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
+                nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(Z_da),dtype='f')
+                nc_Z_DA[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
                 nc_Z_e[Timecount,:]=np.array(np.ma.masked_invalid(Ze),dtype='f')
-                #nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
+                
 
                 nc_N_daTH[Timecount,:,:]=np.array(np.ma.masked_invalid(np.log10(NdE)),dtype='f')
                 
@@ -1848,7 +1840,7 @@ for name in dircf:
                 nc_SNR[Timecount,:]=np.array(np.ma.masked_invalid(snr),dtype='f')
                 nc_N_da[Timecount,:]=np.array(np.ma.masked_invalid(DSD),dtype='f')
 
-                #nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
+                
                
             break
 
@@ -1870,7 +1862,6 @@ for name in dircf:
         DSN=columns[6] #serial number
         BW=columns[8] #Witdh band
         CC=int(columns[10]) #Calibration constant
-##        print('cont cal',CC)
         MDQ=columns[12:15] 
                         
 
@@ -1946,12 +1937,13 @@ for name in dircf:
                 proeta=Promig(PotCorrSum)
 
             nc_times[Timecount:Timecount+1]=timeVec#add 1 second, beacuse the timestapmps from Mrr is the last second
+            nc_Format_times[Timecount:Timecount+1]=date2num(unix2date(timeVec),units=nc_Format_times.units,calendar=nc_Format_times.calendar)
             nc_ranges_H[:]=np.array(Harray[1:],dtype='f4')
             nc_ranges_H_PIA[:]=np.array(Harray,dtype='f4')
             nc_ranges_DropSize[:]=np.array(np.ma.masked_invalid(D[0]),dtype='f')
-            ncShape2D = ('time','Height',)
-            ncShape2D_BB = ('time','BB_Height',)
-            ncShape2D_PIA = ('time','PIA_Height',)#PIA starts in h=0, for this has 32 heights
+            ncShape2D = ('time_utc','Height',)
+            ncShape2D_BB = ('time_utc','BB_Height',)
+            ncShape2D_PIA = ('time_utc','PIA_Height',)#PIA starts in h=0, for this has 32 heights
             ncShape3D = ('time','Height','DropSize',)
             if Timecount==0:
                 ##################create netcdf############
@@ -1975,8 +1967,12 @@ for name in dircf:
                 nc_kur.units='none'
 
                 nc_PIA=dataset.createVariable('PIA','f',ncShape2D_PIA)
-                nc_PIA.description='Path Integrated Attenuation'
-                nc_PIA.units='none'
+                nc_PIA.description='Path Integrated Attenuation from 10*log10(PIA) only in liquid type'
+                nc_PIA.units='dB'
+
+                nc_PIA_all=dataset.createVariable('PIA_all','f',ncShape2D_PIA)
+                nc_PIA_all.description='Path Integrated Attenuation from 10*log10(PIA) without consider the hydrometeor type'
+                nc_PIA_all.units='dB'
 
                 nc_state=dataset.createVariable('Type','f',ncShape2D)
                 nc_state.description='Indicate the type from hydrometeor as unknown (20), rain (10), drizzle (5), snow (-10), mixed (-15) and hail (-20) '
@@ -1999,20 +1995,19 @@ for name in dircf:
                 nc_SnowR.units='mm hr-1'
                 
                 
-                
+                nc_Z_DA=dataset.createVariable('Z','f',ncShape2D)
+                nc_Z_DA.description='Reflectivity considering only liquid drops'
+                nc_Z_DA.units='dBZ'
 
-                nc_Z_da=dataset.createVariable('Z','f',ncShape2D)
-                nc_Z_da.description='Reflectivity considering only liquid drops'
+                nc_Z_da=dataset.createVariable('Za','f',ncShape2D)
+                nc_Z_da.description='Atteunated reflectivity considering only liquid drops'
                 nc_Z_da.units='dBZ'
 
                 nc_Z_e=dataset.createVariable('Ze','f',ncShape2D)
                 nc_Z_e.description='Equivalent Reflectivity'
                 nc_Z_e.units='dBZ'
 
-                #nc_VerMov=dataset.createVariable('Vmov','f',ncShape2D)
-                #nc_VerMov.description='Verical movement +1 downward -1 upward'
-                #nc_VerMov.units='None'
-                
+                               
                 nc_N_da=dataset.createVariable('N(D)','f',ncShape2D)
                 nc_N_da.description='Drop Size Distribution'
                 nc_N_da.units='log10(m-3 mm-1)'
@@ -2038,10 +2033,6 @@ for name in dircf:
                 nc_dm.units='mm'
 
 
-                #nc_VelTur=dataset.createVariable('Fall speed variability','f',ncShape2D)
-                #nc_VelTur.description='Estimate the fall speed variability'
-                #nc_VelTur.units='m/s'
-
                 nc_bb_bot=dataset.createVariable('BB_bottom','f',ncShape2D_BB)
                 nc_bb_bot.description='height from Bright Band bottom in meters a.g.l.'
                 nc_bb_bot.units='m'
@@ -2052,10 +2043,16 @@ for name in dircf:
 
 
             PotCorrSum=[]#empty the array    
-            estat,NewMatrix,z_da,Lwc,Rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA,NW,DM=Process(proeta,Harray[1:],timeVec,D)
+            estat,NewMatrix,z_da,Lwc,Rr,SnowRate,w,sig,sk,Noi,DSD,NdE,Ze,Mov,velTur,snr,kur,PiA_par,NW,DM,PiA=Process(proeta,Harray[1:],timeVec,D)
             bb_bot,bb_top=BB(w,Ze,Harray[1:])
             estat,NW,DM,Lwc,Rr=CheckType(estat,bb_bot,bb_top,DeltaH,NW,DM,Lwc,Rr,sk,Ze,kur,snr,sig,w)
-            z_da,Lwc,Rr,NW,DM,DSD,NdE=Rain_Par(estat,z_da,Lwc,Rr,NW,DM,NewMatrix,D,DSD,NdE,Harray[1:],w)
+            z_da,Lwc,Rr,NW,DM,DSD,NdE,PiA_da=Rain_Par(estat,z_da,Lwc,Rr,NW,DM,NewMatrix,D,DSD,NdE,Harray[1:],w,PiA)
+
+            Z_da=[]
+            for n in range(len(z_da)):
+                
+                Z_da.append(z_da[n]-10.*np.log10(PiA_da[n+1]))
+                
 
                 
 
@@ -2064,7 +2061,8 @@ for name in dircf:
             nc_sig[Timecount,:]=np.array(np.ma.masked_invalid(sig),dtype='f')
             nc_sk[Timecount,:]=np.array(np.ma.masked_invalid(sk),dtype='f')
             nc_kur[Timecount,:]=np.array(np.ma.masked_invalid(kur),dtype='f')
-            nc_PIA[Timecount,:]=np.array(np.ma.masked_invalid(PiA),dtype='f')
+            nc_PIA[Timecount,:]=np.array(np.ma.masked_invalid(10.*np.log10(PiA_da)),dtype='f')
+            nc_PIA_all[Timecount,:]=np.array(np.ma.masked_invalid(10.*np.log10(PiA)),dtype='f')
 
             nc_N_daTH[Timecount,:,:]=np.array(np.ma.masked_invalid(np.log10(NdE)),dtype='f')
 
@@ -2079,17 +2077,18 @@ for name in dircf:
                             
             nc_LWC[Timecount,:]=np.array(np.ma.masked_invalid(Lwc),dtype='f')
             nc_RR[Timecount,:]=np.array(np.ma.masked_invalid(Rr),dtype='f')
-            
-            nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
+
+            nc_Z_DA[Timecount,:]=np.array(np.ma.masked_invalid(z_da),dtype='f')
+            nc_Z_da[Timecount,:]=np.array(np.ma.masked_invalid(Z_da),dtype='f')
             nc_Z_e[Timecount,:]=np.array(np.ma.masked_invalid(Ze),dtype='f')
-            #nc_VerMov[Timecount,:]=np.array(np.ma.masked_invalid(Mov),dtype='f')
+            
             
             nc_SnowR[Timecount,:]=np.array(np.ma.masked_invalid(SnowRate),dtype='f')
             nc_Noi[Timecount,:]=np.array(np.ma.masked_invalid(Noi),dtype='f')
             nc_SNR[Timecount,:]=np.array(np.ma.masked_invalid(snr),dtype='f')
             nc_N_da[Timecount,:]=np.array(np.ma.masked_invalid(DSD),dtype='f')
 
-            #nc_VelTur[Timecount,:]=np.array(np.ma.masked_invalid(velTur),dtype='f')
+            
 
             Timecount=Timecount+1
             
@@ -2117,7 +2116,7 @@ for name in dircf:
 
 
         nc_TypePrecipitation=dataset.createVariable('TyPrecipi','f',('Dm_ax','Nw_ax',))
-        nc_TypePrecipitation.description='Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform'
+        nc_TypePrecipitation.description='Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform, following the method of https://doi.org/10.1016/j.atmosres.2015.04.011'
         nc_TypePrecipitation.units='none'
 
         nc_TypePrecipitation[:,:]=np.array(np.ma.masked_invalid(PrepTypeC),dtype='f')
