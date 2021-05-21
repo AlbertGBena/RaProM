@@ -31,12 +31,14 @@ The script produces the following outputs from MRR raw data:<br />
 **spectral width:** spectral width of the dealiased velocity distribution (m s<sup>-1</sup>)<br />
 **skewness:** skewness of the dealiased velocity distribution<br />
 **kurtosis:** kurtosis of the dealiased velocity distribution<br />
-**PIA:** Path Integrated Attenuation<br />
+**PIA:** Path Integrated Attenuation only for liquid type<br />
+**PIA_all:** Path Integrated Attenuation without the hydrometeor type consideration<br />
 **Type:** Hydrometeor type (unknown[20], rain [10], drizzle [5], snow [-10], mixed [-15] and hail [-20])<br />
 **LWC:** Liquid water content (g m<sup>-3</sup>)<br />
 **RR:** Rain rate (mm h<sup>-1</sup>)<br />
 **SR:** Snow rate (mm h<sup>-1</sup>)<br />
 **Z:** Reflectivity considering only liquid drops (dBZ)<br />
+**Za:** Attenuated Reflectivity considering only liquid drops (dBZ)<br />
 **Ze:** Equivalent Reflectivity (dBZ)<br />
 **N(D):** Drop Size Distribution (log10(m<sup>-3</sup> mm<sup>-1</sup>))<br />
 **SNR:** Signal noise relation from signal without deliasing (dB)<br />
@@ -45,8 +47,9 @@ The script produces the following outputs from MRR raw data:<br />
 **D<sub>m</sub>:** Mean mass-wighted raindrop diameter (mm)<br />
 **BB<sub>bottom</sub>:** Bright Band bottom height  (m) (above MRR level)<br />
 **BB<sub>top</sub>:** Bright Band top height (m) (above MRR level)<br />
-**TyPrecipi:** Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform"<br />
-
+**TyPrecipi:** Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform<br />
+<br />
+Notice that PIA and PIA_all have 1 height bin more, because the first element is at 0 m height a.g.l. impossed by the manufacturer
 
 ## How to execute the script
 The script can be executed from a command line at the system prompt (see MS-Windows example):<br />
