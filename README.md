@@ -68,9 +68,9 @@ python RaProM_XX.py
 ```
 
 The possible command line argument available is:  <i>-hxxxx</i>.<br />
-<i>-hxxxx</i>: forces the devices height is at xxx meters above sea level. This parameter is important to determine the hydrometeor terminal speed in function of height.<br />
+<i>-hxxxx</i>: forces the antenna height is at xxx meters above sea level (for example -h100.8 would mean the antenna is at 100.8 m above sea level). This parameter is important to determine the hydrometeor terminal speed in function of height.<br />
 
-The syntax of these option is:
+For example, to set that the antenna height is at 100.8 m above sea level, the syntax is:
 
 ```
 python RaProM_XX.py -h100.8
