@@ -1588,6 +1588,35 @@ print('Insert the path where the raw are --for instance d:\Mrrdata/')
 Root=raw_input()  #input from the user 
 os.chdir(Root)
 
+########INCLUDE THE OPTIONS IN EXECUTATION
+
+if len(sys.argv)==1:
+    option=0
+h0_opt=np.nan#c_opt=0;c1=0;c2=0;c3=0;h0_opt=np.nan
+if len(sys.argv)>1:
+    for i in sys.argv:
+   
+##        if i=='-spe3D':
+##            #print('Your chosen option is to save the corrected spectral reflectivity values\n')
+##            option=1
+##            c_opt+=1
+##            c1=1
+        
+##        if i=='-dsd3D':
+##            #print('Your chosen option is to save the 3D DSD\n')
+##            option=2
+##            c_opt+=1
+##            c2=1
+        if i[0:2]=='-h':
+            #print('The first height has been changed\n')
+            h0_opt=float(i[2:])
+##            option=0
+##            c_opt+=1
+##            c3=1
+if ~np.isnan(h0_opt):
+    print('\nThe antenna height has been changed to ',str(h0_opt),'\n')
+
+
 print('Insert the number of seconds for integration (usually 60 seconds)')
 IntTime=raw_input()
 IntTime=int(IntTime)
@@ -1619,6 +1648,10 @@ for name in dircf:
     HIcolum=Hini.split()
     HIcolum=map(int,HIcolum[1:len(HIcolum)])#Get the height values and change to integer
     HIcolum2=np.fromiter(HIcolum,dtype=np.int)
+    if np.isnan(h0_opt):
+        HIcolum2=np.fromiter(HIcolum,dtype=np.int)
+    else:
+        HIcolum2=h0_opt+np.fromiter(HIcolum,dtype=np.int)
 
 
     ##Found the parameters dv in function of the height (mrr physics equation)
@@ -1682,13 +1715,23 @@ for name in dircf:
     nc_Format_times.decription='time UTC'
 
     nc_ranges_H.units = 'm'
-    nc_ranges_H.description = 'Heights in meters a.g.l.'
+    if np.isnan(h0_opt):
+        nc_ranges_H.description = 'Heights in meters a.g.l.'
+    else:
+        nc_ranges_H.description = 'Heights in meters a.s.l.'
 
     nc_ranges_H_PIA.units = 'm'
-    nc_ranges_H_PIA.description = 'Heights in meters a.g.l.'
+    if np.isnan(h0_opt):
+        nc_ranges_H_PIA.description = 'Heights in meters a.g.l.'
+    else:
+        nc_ranges_H_PIA.description = 'Heights in meters a.s.l.'
 
     nc_ranges_H_BB.units = 'm'
-    nc_ranges_H_BB.description = 'Heights in meters a.g.l.'
+    if np.isnan(h0_opt):
+        nc_ranges_H_BB.description = 'Heights in meters a.g.l.'
+    else:
+        nc_ranges_H_BB.description = 'Heights in meters a.s.l.'
+    
 
 
 
@@ -1874,7 +1917,10 @@ for name in dircf:
         H=H.strip()
         Hcolum=H.split()
         Hcolum=map(int,Hcolum[1:len(Hcolum)])#Get the height values and change to integer
-        Harray=np.fromiter(Hcolum,dtype=np.int)
+        if np.isnan(h0_opt):
+            Harray=np.fromiter(Hcolum,dtype=np.int)
+        else:
+            Harray=h0_opt+np.fromiter(Hcolum,dtype=np.int)
         DeltaH=Harray[5]-Harray[4]#Height difference
 
         #Read the tranference function (third line from raw file)
@@ -2034,11 +2080,17 @@ for name in dircf:
 
 
                 nc_bb_bot=dataset.createVariable('BB_bottom','f',ncShape2D_BB)
-                nc_bb_bot.description='height from Bright Band bottom in meters a.g.l.'
+                if np.isnan(h0_opt):
+                    nc_bb_bot.description='height from Bright Band bottom in meters a.g.l.'
+                else:
+                    nc_bb_bot.description='height from Bright Band bottom in meters a.s.l.'
                 nc_bb_bot.units='m'
 
                 nc_bb_top=dataset.createVariable('BB_top','f',ncShape2D_BB)
-                nc_bb_top.description='height from Bright Band top in meters a.g.l.'
+                if np.isnan(h0_opt):
+                    nc_bb_top.description='height from Bright Band top in meters a.g.l.'
+                else:
+                    nc_bb_top.description='height from Bright Band top in meters a.s.l.'
                 nc_bb_top.units='m'
 
 

@@ -67,12 +67,23 @@ python RaProM_XX.py
 
 ```
 
+The possible command line argument available is:  <i>-hxxxx</i>.<br />
+<i>-hxxxx</i>: forces the devices height is at xxx meters above sea level. This parameter is important to determine the hydrometeor terminal speed in function of height.<br />
+
+The syntax of these option is:
+
+```
+python RaProM_XX.py -h100.8
+
+```
+
 The script asks the directory where the raw files to be processed are located (it will process all the MRR raw files of the folder selected), for example:
 ```
 C:\mrrdata\test\
 ```
 **NOTE 1: the path must end with \\ in Windows or a / in Linux**<br />
 **NOTE 2: Be careful to not have spaces and special characters in your file path**<br />
+
 
 The script asks for the integration time (in seconds, usually 60)
 
