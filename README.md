@@ -15,7 +15,7 @@ https://doi.org/10.3390/rs12244113
 
 The main script is called RaProM.py and it is available in python 2.7. and 3.8. The following libraries are necessary:
 
-	numpy , version 1.14.5 or later
+	numpy , version 1.14.5 or later until 1.19.
 
 	miepython, version 1.3.0 or later
 
