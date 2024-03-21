@@ -1,7 +1,7 @@
 # ImproveProcessRawMRR - RaProM.py
 
 RaProM is a novel MRR processing methodology, with enhanced spectra processing and Doppler dealiasing, that produces as output data a number of fields which include equivalent reflectivity (Ze), Doppler fall speed and derived parameters such as spectral width, skewness, and kurtosis, plus a simplified precipitation type classification (drizzle, rain, mixed, snow, and hail), and additional variables depending on the precipitation type. MRR stands for Micro Rain Radar, a Doppler vertically pointing radar manufactured by Metek GmbH. A description of the RaProM processing and examples is available at <br/>
-Garcia-Benadi A, Bech J, Gonzalez S, Udina M, Codina B, Georgis J-F. Precipitation Type Classification of Micro Rain Radar Data Using an Improved Doppler Spectral Processing Methodology. Remote Sens. 2020, 12, 4113.DOI: http://dx.doi.or/10.3390/rs12244113<br/><br/>
+Garcia-Benadi A, Bech J, Gonzalez S, Udina M, Codina B, Georgis J-F. Precipitation Type Classification of Micro Rain Radar Data Using an Improved Doppler Spectral Processing Methodology. Remote Sens. 2020, 12, 4113. https://doi.org/10.3390/rs12244113<br/><br/>
 **Note1: the scripts are designed to work with MRR-2.**<br/><br/>
 **Note2: a different version similar to RaProM, called RaProM-Pro, is available for MRR-Pro files. More information on RaProM-Pro is available at: <br/>
 Garcia-Benadí A, Bech J, Gonzalez S, Udina M, Codina B. A New Methodology to Characterise the Radar Bright Band Using Doppler Spectral Moments from Vertically Pointing Radar Observations. Remote Sens. 2021, 13, 4323. https://doi.org/10.3390/rs13214323**<br/><br/>
