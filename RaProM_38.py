@@ -1,6 +1,9 @@
-###script for process the raw data from Mrr radar of Mettek
+###script for process the raw data from Mrr2 radar of Mettek
 ###Autor: Albert Garcia Benadi
 ###ORCID: 0000-0002-5560-4392
+##202411- The new version includes the improve definitions and the M value to adjust the calibration constant
+##      - The new version includes the modification the calculation of Ze, including the speed resolution.
+
 
 
 import numpy as np
@@ -990,7 +993,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
         for m in range(len(NewM)):
             vector=NewM[m]
             vector2=vector[64:64*2]
-            ValueZeD=(10**18*lamb**4*np.nansum(vector2))/(np.pi**5*K2w)
+            ValueZeD=(10**18*lamb**4*Deltav*np.nansum(vector2))/(np.pi**5*K2w)
             Vector.append(ValueZeD)
         Zediff=np.diff(Vector)
                       
@@ -1008,7 +1011,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
             sigma=np.sqrt(np.nansum(np.prod([vector,np.power(vel-w,2)],axis=0))/PT)# spectral witdh
             sk=np.nansum(np.prod([vector,np.power(vel-w,3)],axis=0))/(PT*pow(sigma,3))# spectral witdh
             Kur=np.nansum(np.prod([vector,np.power(vel-w,4)],axis=0))/(PT*pow(sigma,4))# Kurtossis
-            ValueZe=(10**18*lamb**4*np.nansum(NewM[m]))/(np.pi**5*K2w)
+            ValueZe=(10**18*lamb**4*Deltav*np.nansum(NewM[m]))/(np.pi**5*K2w)
             if ValueZe<=0 or np.isnan(ValueZe):
                 ZE.append(np.nan)
             else:
@@ -1254,7 +1257,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                             state[m]=0.
                     
                 Mmixed.append(NewM[m])
-                Value=10**18*lamb**4*np.nansum(NewM[m])/(np.pi**5*K2w)
+                Value=10**18*lamb**4*Deltav*np.nansum(NewM[m])/(np.pi**5*K2w)
                 
                 Z_da.append(np.nan)
                 lwc.append(np.nan)
@@ -1300,7 +1303,7 @@ def Process(matrix,he,temps,D):#This is the core from the preocessing
                 Munk.append(NewM[m])
                 
                 
-                Value=10**18*lamb**4*np.nansum(NewM[m])/(np.pi**5*K2w)#use the rayleight estimation
+                Value=10**18*lamb**4*Deltav*np.nansum(NewM[m])/(np.pi**5*K2w)#use the rayleight estimation
                 
                 Z_da.append(np.nan)
                 lwc.append(np.nan)
@@ -1579,8 +1582,10 @@ Deltav=Deltaf*lamb/2.
 Ocurrence=50.#value in % of ocurrence in the averaging matrix
 
 
-
-np.warnings.filterwarnings('ignore')#to avoid the error messages
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
+##np.warnings.filterwarnings('ignore')#to avoid the error messages
 
 
 
@@ -1592,30 +1597,23 @@ os.chdir(Root)
 
 if len(sys.argv)==1:
     option=0
-h0_opt=np.nan#c_opt=0;c1=0;c2=0;c3=0;h0_opt=np.nan
+h0_opt=np.nan;Adjust_M=1.#c_opt=0;c1=0;c2=0;c3=0;h0_opt=np.nan
 if len(sys.argv)>1:
     for i in sys.argv:
-   
-##        if i=='-spe3D':
-##            #print('Your chosen option is to save the corrected spectral reflectivity values\n')
-##            option=1
-##            c_opt+=1
-##            c1=1
-        
-##        if i=='-dsd3D':
-##            #print('Your chosen option is to save the 3D DSD\n')
-##            option=2
-##            c_opt+=1
-##            c2=1
+
         if i[0:2]=='-h':
             #print('The first height has been changed\n')
             h0_opt=float(i[2:])
-##            option=0
-##            c_opt+=1
-##            c3=1
+        if i[0:2]=='-M':
+            #print('The calibration constant has been changed\n')
+            Adjust_M=float(i[2:])
+##            print('M value',Adjust_M)
+
 if ~np.isnan(h0_opt):
     print('\nThe antenna height has been changed to ',str(h0_opt),' m\n')
 
+if Adjust_M!=1.:
+    print('\nThe calibration constant has been adjusted by M ',str(Adjust_M),' m\n')
 
 print('Insert the number of seconds for integration (usually 60 seconds)')
 IntTime=input()
@@ -1686,6 +1684,21 @@ for name in dircf:
     dataset.description='Data processed by MRR radar'
     dataset.author='Albert Garcia Benad'+u'\xed'
     dataset.orcid='0000-0002-5560-4392 '
+    if Adjust_M!=1.:
+        dataset.Adjust_M='The MRR calibration constant has been adjusted with the multiplicative bias M='+str(Adjust_M)
+    # if not Site:
+    #     dataset.site='Undefined'
+    # else:
+    #     dataset.site=Site
+    # if not Latitude:
+    #     dataset.latitude='Undefined'
+
+    # else:
+    #     dataset.latitude=Latitude
+    # if not Longitude:
+    #     dataset.longitude='Undefined'
+    # else:
+    #     dataset.longitude=Longitude
 
 
     dataset.createDimension('DropSize',len(D[0]))
@@ -1715,22 +1728,22 @@ for name in dircf:
 
     nc_ranges_H.units = 'm'
     if np.isnan(h0_opt):
-        nc_ranges_H.description = 'Heights in meters a.g.l.'
+        nc_ranges_H.description = 'Height a.g.l.'
     else:
-        nc_ranges_H.description = 'Heights in meters a.s.l.'
+        nc_ranges_H.description = 'Height a.s.l.'
 
     nc_ranges_H_PIA.units = 'm'
     if np.isnan(h0_opt):
-        nc_ranges_H_PIA.description = 'Heights in meters a.g.l.'
+        nc_ranges_H_PIA.description = 'Height a.g.l.'
     else:
-        nc_ranges_H_PIA.description = 'Heights in meters a.s.l.'
+        nc_ranges_H_PIA.description = 'Height a.s.l.'
     
 
     nc_ranges_H_BB.units = 'm'
     if np.isnan(h0_opt):
-        nc_ranges_H_BB.description = 'Heights in meters a.g.l.'
+        nc_ranges_H_BB.description = 'Height a.g.l.'
     else:
-        nc_ranges_H_BB.description = 'Heights in meters a.s.l.'
+        nc_ranges_H_BB.description = 'Height a.s.l.'
     
 
 
@@ -1933,8 +1946,8 @@ for name in dircf:
         vectorV=np.arange(0,64*fNy,fNy)
         
 
-        #constant value to conevrt F to f, include all constants
-        Cte=DeltaH*float(CC)/(10**20)
+        #constant value to conevrt F to f, include all constants, and the possible correction from M
+        Cte=DeltaH*float(CC)/(Adjust_M*10**20)
         
         
         #Read the values F from file
@@ -1996,17 +2009,17 @@ for name in dircf:
                 ##################create netcdf############
 
                 nc_w=dataset.createVariable('W','f',ncShape2D)
-                nc_w.description='fall speed with aliasing correction'
+                nc_w.description='Fall speed with aliasing correction'
                 nc_w.units='m/s'
                 
 
                 nc_sig=dataset.createVariable('spectral width','f',ncShape2D)
-                nc_sig.description='spectral width of the spectral reflectivity  with dealiasing'
+                nc_sig.description='Spectral width of the dealiased velocity distribution'
                 nc_sig.units='m/s'
                 
 
                 nc_sk=dataset.createVariable('Skewness','f',ncShape2D)
-                nc_sk.description='skewness of the spectral reflectivity with dealiasing'
+                nc_sk.description='Skewness of the spectral reflectivity with dealiasing'
                 nc_sk.units='none'
 
                 nc_kur=dataset.createVariable('Kurtosis','f',ncShape2D)
@@ -2014,27 +2027,27 @@ for name in dircf:
                 nc_kur.units='none'
 
                 nc_PIA=dataset.createVariable('PIA','f',ncShape2D_PIA)
-                nc_PIA.description='Path Integrated Attenuation from 10*log10(PIA) only in liquid type'
+                nc_PIA.description='Path Integrated Attenuation calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_PIA.units='dB'
 
                 nc_PIA_all=dataset.createVariable('PIA_all','f',ncShape2D_PIA)
-                nc_PIA_all.description='Path Integrated Attenuation from 10*log10(PIA) without consider the hydrometeor type'
+                nc_PIA_all.description='Path Integrated Attenuation calculated assuming all hydrometeors are in liquid phase regardless of hydrometeor type classification'
                 nc_PIA_all.units='dB'
 
                 nc_state=dataset.createVariable('Type','f',ncShape2D)
-                nc_state.description='Indicate the type from hydrometeor as unknown (20), rain (10), drizzle (5), snow (-10), mixed (-15) and hail (-20) '
+                nc_state.description='Predominant hydrometeor type numerical value where possible values are: -20 (hail), -15 (graupel), -10 (snow), 0 (mixed), 5 (drizzle), 10 (rain) and 20 (unknown precipitation)'
                 nc_state.units=''
                 
 
                 
 
                 nc_LWC=dataset.createVariable('LWC','f',ncShape2D)
-                nc_LWC.description='Liquid water content'
+                nc_LWC.description='Liquid Water Content calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_LWC.units='g m-3'
                 
 
                 nc_RR=dataset.createVariable('RR','f',ncShape2D)
-                nc_RR.description='Rain Rate'
+                nc_RR.description='Rain Rate calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_RR.units='mm hr-1'
 
                 nc_SnowR=dataset.createVariable('SR','f',ncShape2D)
@@ -2043,56 +2056,56 @@ for name in dircf:
                 
                 
                 nc_Z_DA=dataset.createVariable('Z','f',ncShape2D)
-                nc_Z_DA.description='Reflectivity considering only liquid drops'
+                nc_Z_DA.description='Radar reflectivity calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_Z_DA.units='dBZ'
 
                 nc_Z_da=dataset.createVariable('Za','f',ncShape2D)
-                nc_Z_da.description='Atteunated reflectivity considering only liquid drops'
+                nc_Z_da.description='Attenuated radar reflectivity calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_Z_da.units='dBZ'
 
                 nc_Z_e=dataset.createVariable('Ze','f',ncShape2D)
-                nc_Z_e.description='Equivalent Reflectivity'
+                nc_Z_e.description='Equivalent radar reflectivity'
                 nc_Z_e.units='dBZ'
 
                                
                 nc_N_da=dataset.createVariable('N(D)','f',ncShape2D)
-                nc_N_da.description='Drop Size Distribution'
+                nc_N_da.description='Drop Size Distribution calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_N_da.units='log10(m-3 mm-1)'
 
                 nc_N_daTH=dataset.createVariable('N(D) in function of time and height','f',ncShape3D)
-                nc_N_daTH.description='Drop Size Distribution in function of time and height'
+                nc_N_daTH.description='Drop Size Distribution in function of time and height calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_N_daTH.units='log10(m-3 mm-1)'
                 
                 nc_SNR=dataset.createVariable('SNR','f',ncShape2D)
-                nc_SNR.description='Signal noise relation from signal without dealiasing'
+                nc_SNR.description='Signal to noise ratio from signal without dealiasing '
                 nc_SNR.units='dB'
 
                 nc_Noi=dataset.createVariable('Noise','f',ncShape2D)
-                nc_Noi.description='Noise'
+                nc_Noi.description='Noise from spectra reflectivity '
                 nc_Noi.units='m-1'
 
                 nc_nw=dataset.createVariable('Nw','f',ncShape2D)
-                nc_nw.description='Intercept parameter of the gamma distribution normalized to the liquid water content'
+                nc_nw.description='Intercept of the gamma distribution normalized to the Liquid Water Content calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_nw.units='log10(mm-1 m-3)'
 
                 nc_dm=dataset.createVariable('Dm','f',ncShape2D)
-                nc_dm.description='mean mas-weighted raindrop diameter'
+                nc_dm.description='Mean mass-weighted raindrop diameter calculated using only liquid hydrometeors according to hydrometeor type classification'
                 nc_dm.units='mm'
 
 
                 nc_bb_bot=dataset.createVariable('BB_bottom','f',ncShape2D_BB)
                 if np.isnan(h0_opt):
-                    nc_bb_bot.description='height from Bright Band bottom in meters a.g.l.'
+                    nc_bb_bot.description='Bright Band bottom height a.g.l.'
                 else:
-                    nc_bb_bot.description='height from Bright Band bottom in meters a.s.l.'
+                    nc_bb_bot.description='Bright Band bottom height a.s.l.'
                             
                 nc_bb_bot.units='m'
 
                 nc_bb_top=dataset.createVariable('BB_top','f',ncShape2D_BB)
                 if np.isnan(h0_opt):
-                    nc_bb_top.description='height from Bright Band top in meters a.g.l.'
+                    nc_bb_top.description='Bright Band top height a.g.l.'
                 else:
-                    nc_bb_top.description='height from Bright Band top in meters a.s.l.'
+                    nc_bb_top.description='Bright Band top height a.s.l.'
                 
                 nc_bb_top.units='m'
 
@@ -2159,7 +2172,7 @@ for name in dircf:
         nc_ranges_Dm=dataset.createVariable('Dm_ax','f',('Dm_ax',))
         nc_ranges_Nw=dataset.createVariable('Nw_ax','f',('Nw_ax',))
         
-        nc_ranges_Dm.description = 'mean diameter axes to Rainfall type'
+        nc_ranges_Dm.description = 'Mean diameter axes to rainfall type'
         nc_ranges_Dm.units = '(mm)'
         
         nc_ranges_Nw.description = 'Intecept parameter axes to Rainfall type'
@@ -2171,7 +2184,7 @@ for name in dircf:
 
 
         nc_TypePrecipitation=dataset.createVariable('TyPrecipi','f',('Dm_ax','Nw_ax',))
-        nc_TypePrecipitation.description='Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform, following the method of https://doi.org/10.1016/j.atmosres.2015.04.011'
+        nc_TypePrecipitation.description='Precipitation regime numerical value where possible values are: 5 (convective), 0 (transition) and -5 (stratiform) calculated using only liquid hydrometeors according to hydrometeor type classification'##, following the method of https://doi.org/10.1016/j.atmosres.2015.04.011'
         nc_TypePrecipitation.units='none'
 
         nc_TypePrecipitation[:,:]=np.array(np.ma.masked_invalid(PrepTypeC),dtype='f')

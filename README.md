@@ -17,11 +17,19 @@ The main script is called RaProM.py and it is available in python 2.7. and 3.8. 
 
 	numpy , version 1.14.5 or later until 1.19.
 
-	miepython, version 1.3.0 or later
+	miepython, version 1.3.0 or later (matplotlib is necessary for this library works)
 
-	netCDF4, version 1.2.7 or later
+	netCDF4, version 1.2.7 or later(cftime is necessary for this library works)
 
 The script works with the MRR raw archives.
+
+The libraries can be installed with pip, using these sentences:
+
+	pip install numpy
+	pip install miepython
+	pip install netCDF4
+	pip install matplotlib
+	pip install cftime
 
 
 ## How to cite
@@ -32,27 +40,28 @@ Garcia-Benadi A, Bech J, Gonzalez S, Udina M, Codina B, Georgis J-F. Precipitati
 
 ## Outputs
 The script produces the following outputs from MRR raw data:<br />
-**W:** fall speed with aliasing correction (m s<sup>-1</sup>)<br />
-**spectral width:** spectral width of the dealiased velocity distribution (m s<sup>-1</sup>)<br />
-**skewness:** skewness of the dealiased velocity distribution<br />
-**kurtosis:** kurtosis of the dealiased velocity distribution<br />
-**PIA:** Path Integrated Attenuation only for liquid type<br />
-**PIA_all:** Path Integrated Attenuation without the hydrometeor type consideration<br />
-**Type:** Hydrometeor type (unknown[20], rain [10], drizzle [5], snow [-10], mixed [-15] and hail [-20])<br />
-**LWC:** Liquid water content (g m<sup>-3</sup>)<br />
-**RR:** Rain rate (mm h<sup>-1</sup>)<br />
-**SR:** Snow rate (mm h<sup>-1</sup>)<br />
-**Z:** Reflectivity considering only liquid drops (dBZ)<br />
-**Za:** Attenuated Reflectivity considering only liquid drops (dBZ)<br />
-**Ze:** Equivalent Reflectivity (dBZ)<br />
-**N(D):** Drop Size Distribution (log10(m<sup>-3</sup> mm<sup>-1</sup>))<br />
-**SNR:** Signal noise relation from signal without dealiasing (dB)<br />
-**Noise:** Noise from spectra reflectivity (m<sup>-1</sup>)<br />
-**N<sub>w</sub>:** Intercept of the gamma distribution normalized to the liquid water content (log10(m<sup>-3</sup> mm<sup>-1</sup>))<br />
-**D<sub>m</sub>:** Mean mass-weighted raindrop diameter (mm)<br />
-**BB<sub>bottom</sub>:** Bright Band bottom height  (m) (above MRR level)<br />
-**BB<sub>top</sub>:** Bright Band top height (m) (above MRR level)<br />
-**TyPrecipi:** Rainfall type where the value 5 is convective, 0 is transition and -5 is stratiform<br />
+**W:** Fall speed with aliasing correction (m s<sup>-1</sup>)<br />
+**spectral width:** Spectral width of the dealiased velocity distribution (m s<sup>-1</sup>)<br />
+**skewness:** Skewness of the dealiased velocity distribution<br />
+**kurtosis:** Kurtosis of the dealiased velocity distribution<br />
+**PIA:** Path Integrated Attenuation calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**PIA_all:** Path Integrated Attenuation calculated assuming all hydrometeors are in liquid phase regardless of hydrometeor type classification<br />
+**Type:** Predominant hydrometeor type numerical value where possible values are: -20 (hail), -15 (mixed), -10 (snow), 0 (mixed), 5 (drizzle), 10 (rain) and 20 (unknown precipitation)<br />
+**LWC:** Liquid Water Content (g m<sup>-3</sup>) calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**RR:** Rain Rate (mm h<sup>-1</sup>) calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**SR:** Snow Rate (mm h<sup>-1</sup>)<br />
+**Z:** Radar reflectivity (dBZ) calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**Za:** Attenuated radar reflectivity (dBZ) calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**Ze:** Equivalent radar reflectivity (dBZ)<br />
+**N(D):** Drop Size Distribution (log10(m<sup>-3</sup> mm<sup>-1</sup>)) calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**N(D) in_function_of_time_and_height** Drop Size Distribution (log10(m<sup>-3</sup> mm<sup>-1</sup>)) in function of time and height calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**SNR:** Signal to noise ratio from signal without dealiasing (dB)<br />
+**Noise:** Noise from spectra reflectivity  (m<sup>-1</sup>)<br />
+**N<sub>w</sub>:** Intercept of the gamma distribution normalized to the Liquid Water Content (log10(m<sup>-3</sup> mm<sup>-1</sup>)) calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**D<sub>m</sub>:** Mean mass-weighted raindrop diameter (mm) calculated using only liquid hydrometeors according to hydrometeor type classification<br />
+**BB<sub>bottom</sub>:** Bright Band bottom height  (m) (above ground level)<br />
+**BB<sub>top</sub>:** Bright Band top height (m) (above ground level)<br />
+**TyPrecipi:** Precipitation regime numerical value where possible values are: 5 (convective), 0 (transition) and -5 (stratiform) calculated using only liquid hydrometeors according to hydrometeor type classification<br />
 <br />
 Notice that PIA and PIA_all have 1 height bin more, because the first element is at 0 m height a.g.l. imposed by the manufacturer
 
@@ -67,15 +76,24 @@ python RaProM_XX.py
 
 ```
 
-The possible command line argument available is:  <i>-hxxxx</i>.<br />
-<i>-hxxxx</i>: forces the antenna height is at xxx meters above sea level (for example -h100.8 would mean the antenna is at 100.8 m above sea level). This parameter is important to determine the hydrometeor terminal speed in function of height.<br />
+The script has some additional command line execution options. Please note that their use may imply a substantial increase of the netcdf output file (see below). Command line options are (more than one is possible, in any order):<br /> 
+<br /> 
+**<i>-hxxx</i>**: this option forces the MRR antenna height to be at xxx meters above sea level which is important if the height was not correctly configured in the original raw data file. xxx can be a float or an integer value.<br />
+<br /> 
+**<i>-Myyy</i>**: this option modifies the MRR radar constant so it will affect Z, RR and other variables. M is the multiplicative bias calculated by comparing the MRR rainfall (RR_MRR) with a reference rainfall value such as a rain gauge (RR_REF), M=RR_MRR/RR_REF. M can be a float or an integer, typically close to 1.<br />
+<br /> 
 
-For example, to set that the antenna height is at 100.8 m above sea level, the syntax is:
-
+The syntax of these options are:
 ```
 python RaProM_XX.py -h100.8
 
 ```
+This example forces the antenna height to be at 100.8 m above sea level.<br />
+```
+python RaProM_XX.py -M0.78
+
+```
+This example assumes a multiplicative bias of 0.87 between MRR2 and reference rainfall.<br />
 
 The script asks the directory where the raw files to be processed are located (it will process all the MRR raw files of the folder selected), for example:
 ```
