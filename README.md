@@ -1,6 +1,6 @@
 # ImproveProcessRawMRR - RaProM.py
 
-RaProM is a novel MRR processing methodology, with enhanced spectra processing and Doppler dealiasing, that produces as output data a number of fields which include equivalent reflectivity (Ze), Doppler fall speed and derived parameters such as spectral width, skewness, and kurtosis, plus a simplified precipitation type classification (drizzle, rain, mixed, snow, and hail), and additional variables depending on the precipitation type. MRR stands for Micro Rain Radar, a Doppler vertically pointing radar manufactured by Metek GmbH. A description of the RaProM processing and examples is available at: <br/>
+RaProM is a MRR processing methodology, with enhanced spectra processing and Doppler dealiasing, that produces as output data a number of fields which include equivalent reflectivity (Ze), Doppler fall speed and derived parameters such as spectral width, skewness, and kurtosis, plus a simplified precipitation hydrometeor type classification (drizzle, rain, mixed, snow, and hail), and additional variables depending on the precipitation hydrometeor type. MRR stands for Micro Rain Radar, a Doppler vertically pointing radar manufactured by Metek GmbH. A description of the RaProM processing and examples is available at: <br/>
 Garcia-Benadi A, Bech J, Gonzalez S, Udina M, Codina B, Georgis J-F. Precipitation Type Classification of Micro Rain Radar Data Using an Improved Doppler Spectral Processing Methodology. Remote Sens. 2020, 12, 4113. https://doi.org/10.3390/rs12244113<br/><br/>
 **Note1: the scripts are designed to work with MRR-2.**<br/><br/>
 **Note2: a different version similar to RaProM, called RaProM-Pro (https://github.com/AlbertGBena/RaProM-Pro), is available for MRR-Pro files. More information on RaProM-Pro is available at: <br/>
@@ -13,13 +13,24 @@ https://doi.org/10.3390/rs12244113
 
 ## Versions and dependences
 
-The main script is called RaProM.py and it is available in python 2.7. and 3.8. The following libraries are necessary:
+The main script is called RaProM.py and it is available in python 2.7., 3.8. ,and 3.11. The following libraries are necessary:
+
+For 2.7 and 3.8. python version
 
 	numpy , version 1.14.5 or later until 1.19.
 
 	miepython, version 1.3.0 or later (matplotlib is necessary for this library works)
 
 	netCDF4, version 1.2.7 or later(cftime is necessary for this library works)
+
+For 3.11 pyhton version
+
+	numpy , version 1.21.6
+
+	miepython, version 2.2.1 (matplotlib is necessary for this library works)
+
+	netCDF4, version 1.7.2 or later(cftime is necessary for this library works)
+
 
 The script works with the MRR raw archives.
 
@@ -31,6 +42,9 @@ The libraries can be installed with pip, using these sentences:
 	pip install matplotlib
 	pip install cftime
 
+If you have already installed one of the libraries but need to change the version, you can use this syntaxis:
+
+	pip install numpy~=1.21.6
 
 ## How to cite
 
@@ -70,7 +84,7 @@ The script can be executed from a command line at the system prompt (see MS-Wind
 <br />
 ![commandWindow](https://user-images.githubusercontent.com/35369817/67784656-64703d00-fa6c-11e9-94fa-0e616d703168.JPG)
 <br />
-at the directory where RaProM_XX.py has been copied, where XX is 27 or 38 in function of your python version:
+at the directory where RaProM_XX.py has been copied, where XX is 27, 38, or 3-11 in function of your python version:
 ```
 python RaProM_XX.py
 
@@ -100,7 +114,7 @@ The script asks the directory where the raw files to be processed are located (i
 C:\mrrdata\test\
 ```
 **NOTE 1: the path must end with \\ in Windows or a / in Linux**<br />
-**NOTE 2: Be careful to not have spaces and special characters in your file path**<br />
+**NOTE 2: Be careful to avoid using spaces and special characters in your file path.**<br />
 
 
 The script asks for the integration time (in seconds, usually 60)
